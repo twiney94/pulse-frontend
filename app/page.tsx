@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { CircleUser, Menu, Package2, Search } from "lucide-react"
-import Image from "next/image"
+import Image from "next/legacy/image"
 import { Button } from "@/components/ui/button"
 import {
   Card,
