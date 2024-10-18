@@ -21,19 +21,16 @@ const saans = localFont({
     },
     {
       path: "./fonts/Saans-SemiBold.woff",
-      weight: "600 900"
-    }
+      weight: "600 900",
+    },
   ],
   variable: "--font-sans",
-});
-
-const saansSemi = localFont({
-  src: "./fonts/Saans-SemiBold.woff",
 });
 
 export const metadata: Metadata = {
   title: "Pulse",
   description: "Vibe the city, feel the pulse.",
+  icons: "favicon.png",
 };
 
 export default function RootLayout({
