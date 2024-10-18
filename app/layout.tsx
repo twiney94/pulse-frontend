@@ -13,6 +13,24 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const saans = localFont({
+  src: [
+    {
+      path: "./fonts/Saans-Regular.woff",
+      weight: "500",
+    },
+    {
+      path: "./fonts/Saans-SemiBold.woff",
+      weight: "600 900"
+    }
+  ],
+  variable: "--font-sans",
+});
+
+const saansSemi = localFont({
+  src: "./fonts/Saans-SemiBold.woff",
+});
+
 export const metadata: Metadata = {
   title: "Pulse",
   description: "Vibe the city, feel the pulse.",
@@ -26,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${saans.variable} ${geistSans.variable} ${geistMono.variable}  antialiased`}
       >
         {children}
       </body>
