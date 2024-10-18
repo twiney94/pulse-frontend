@@ -1,6 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import SessionProviderWrapper from "./SessionProviderWrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -43,7 +45,7 @@ export default function RootLayout({
       <body
         className={`${saans.variable} ${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        {children}
+        <SessionProviderWrapper>{children}</SessionProviderWrapper>
       </body>
     </html>
   );
