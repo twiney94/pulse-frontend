@@ -19,7 +19,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export const TextGradient = () => {
-    const [text] = useState('Vibe the city, feel the pulse!')
+    const [text] = useState('Vibe the city, feel the pulse.')
     const [background] = useState(
       'linear-gradient(to top left,#ff75c3,#ffa647,#ffe83f,#9fff5b,#70e2ff,#cd93ff)'
     )
