@@ -1,3 +1,5 @@
+// pages/signup/page.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -20,6 +22,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import BackToHome from "../components/BackToHome";
+import { httpRequest } from "@/app/utils/http";
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email address").required("Required"),
@@ -41,21 +44,12 @@ export default function SignUpPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: values.email, password: values.password }),
-      });
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URI + "/auth/register";
+      await httpRequest(backendUrl, "POST", { email: values.email, password: values.password });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push("/login");
-      } else {
-        setError(data.message || "Signup failed");
-      }
-    } catch (error) {
-      setError("An unexpected error occurred");
+      router.push("/login");
+    } catch (error: any) {
+      setError(error.message || "Signup failed");
     } finally {
       setIsLoading(false);
     }
