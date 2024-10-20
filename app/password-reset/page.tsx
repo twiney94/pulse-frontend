@@ -36,11 +36,8 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
 
     try {
-      // Here you would typically call your API to initiate the password reset process
-      // For this example, we'll simulate a successful request after a short delay
       await new Promise(resolve => setTimeout(resolve, 1000))
       setSuccess(true)
-      // Optionally, redirect to login page after a few seconds
       setTimeout(() => router.push("/login"), 3000)
     } catch (err) {
       setError("An error occurred. Please try again.")
