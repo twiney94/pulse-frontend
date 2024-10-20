@@ -20,6 +20,7 @@ import { signIn } from "next-auth/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
+import BackToHome from "../components/BackToHome";
 
 export const TextGradient = () => {
   const [text] = useState("Vibe the city, feel the pulse.");
@@ -67,7 +68,7 @@ export default function EnhancedLoginPage() {
     if (result?.error) {
       setError("Invalid email or password");
     } else {
-      router.push("/dashboard");
+      router.push("/");
     }
 
     setIsLoading(false);
@@ -75,6 +76,7 @@ export default function EnhancedLoginPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <BackToHome corner="top-left" />
       <div className="flex-1 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>

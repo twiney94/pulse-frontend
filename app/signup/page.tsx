@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
-import { Formik, Form, Field, ErrorMessage } from "formik"
-import * as Yup from "yup"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -16,9 +16,10 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import BackToHome from "../components/BackToHome";
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email address").required("Required"),
@@ -28,33 +29,41 @@ const SignUpSchema = Yup.object().shape({
   passwordVerification: Yup.string()
     .oneOf([Yup.ref("password"), undefined], "Passwords must match")
     .required("Required"),
-})
+});
 
 export default function SignUpPage() {
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = async (values: { email: string; password: string; passwordVerification: string }) => {
-    setError("")
-    setIsLoading(true)
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    setIsLoading(true);
+    setError("");
 
     try {
-      // Here you would typically call your API to create a new user account
-      // For this example, we'll simulate a successful sign-up after a short delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Redirect to dashboard or confirmation page
-      router.push("/dashboard")
-    } catch (err) {
-      setError("An error occurred during sign-up. Please try again.")
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: values.email, password: values.password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        router.push("/login");
+      } else {
+        setError(data.message || "Signup failed");
+      }
+    } catch (error) {
+      setError("An unexpected error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <BackToHome corner="top-right" />
       <div className="hidden lg:flex flex-1 items-center justify-center bg-gray-200">
         <div className="relative flex w-full h-full justify-center">
           <div className="flex flex-col items-center justify-center z-10 gap-4 select-none">
@@ -86,7 +95,7 @@ export default function SignUpPage() {
           <Formik
             initialValues={{ email: "", password: "", passwordVerification: "" }}
             validationSchema={SignUpSchema}
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit} // Pass handleSubmit to Formik
           >
             {({ errors, touched, isSubmitting }) => (
               <Form>
@@ -106,7 +115,7 @@ export default function SignUpPage() {
                       type="email"
                       placeholder="Enter your email"
                       className={`${
-                        errors.email && touched.email ? 'border-red-500' : ''
+                        errors.email && touched.email ? "border-red-500" : ""
                       }`}
                     />
                     <ErrorMessage
@@ -124,7 +133,7 @@ export default function SignUpPage() {
                       type="password"
                       placeholder="Create a password"
                       className={`${
-                        errors.password && touched.password ? 'border-red-500' : ''
+                        errors.password && touched.password ? "border-red-500" : ""
                       }`}
                     />
                     <ErrorMessage
@@ -142,7 +151,9 @@ export default function SignUpPage() {
                       type="password"
                       placeholder="Verify your password"
                       className={`${
-                        errors.passwordVerification && touched.passwordVerification ? 'border-red-500' : ''
+                        errors.passwordVerification && touched.passwordVerification
+                          ? "border-red-500"
+                          : ""
                       }`}
                     />
                     <ErrorMessage
@@ -153,9 +164,9 @@ export default function SignUpPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-4">
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
+                  <Button
+                    type="submit"
+                    className="w-full"
                     disabled={isSubmitting || isLoading}
                   >
                     {isSubmitting || isLoading ? "Signing up..." : "Sign up"}
@@ -173,5 +184,5 @@ export default function SignUpPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

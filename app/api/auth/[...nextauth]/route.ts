@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
         const data = await res.json();
 
         if (res.ok && data.token) {
-          return { id: data.user.id, name: data.user.name, token: data.token };
+          return { token: data.token };
         }
         return null;
       },
@@ -40,6 +40,8 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
+    signOut: "/",
+    newUser: "/signup",
   },
   session: {
     strategy: "jwt",
