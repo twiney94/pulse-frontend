@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ExclamationTriangleIcon, CheckCircledIcon } from "@radix-ui/react-icons"
+import BackToHome from "../components/BackToHome"
 
 const ForgotPasswordSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email address").required("Required"),
@@ -50,6 +51,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <BackToHome corner="top-left" />
       <div className="flex-1 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
