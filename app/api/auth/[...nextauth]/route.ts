@@ -11,18 +11,27 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        const res = await fetch("http://localhost:8000/auth", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(credentials),
-        });
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/auth`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(credentials),
+          });
 
-        const data = await res.json();
+          const data = await res.json();
 
-        if (res.ok && data.token) {
-          return { token: data.token };
+          if (!res.ok) {
+            throw new Error(data.message || "Authentication failed");
+          }
+
+          if (data.token) {
+            return { id: data.userId, token: data.token };
+          }
+          
+          return null;
+        } catch (error: any) {
+          throw new Error(error.message);
         }
-        return null;
       },
     }),
   ],
