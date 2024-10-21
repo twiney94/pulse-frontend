@@ -34,6 +34,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import EventSearchBar from "@/app/components/EventSearchBar";
+import LogoMini from "@/public/pulse-mini.svg";
 
 export function Logo() {
   return <Image src={pulseLogo} alt="Pulse" className="object-cover" />;
@@ -110,37 +111,6 @@ export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center">
-          <svg
-            className="w-32 h-32 mx-auto animate-pulse"
-            viewBox="0 0 226.7 265.33"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g id="Layer_1-2" data-name="Layer_1">
-              <g>
-                <path
-                  className="fill-[#f95454]"
-                  d="M226.7,120.32c0,11.72-1.89,22.65-5.66,32.8-3.78,10.15-9.5,18.94-17.15,26.37-7.66,7.43-17.2,13.29-28.63,17.58-11.44,4.29-24.81,6.43-40.12,6.43h-27.38c-2.1,0-3.88.74-5.35,2.2-1.47,1.47-2.2,3.25-2.2,5.34v46.77c0,2.09-.73,3.87-2.19,5.34-1.46,1.47-3.23,2.2-5.31,2.2h-47.16c-2.08,0-3.85-.73-5.31-2.2-1.46-1.46-2.18-3.24-2.18-5.34V43.1c0-2.09.73-3.87,2.2-5.34,1.46-1.46,3.24-2.2,5.34-2.2h96.05c11.72,0,22.76,2.2,33.11,6.59,10.36,4.39,19.35,10.47,26.99,18.21,7.64,7.74,13.7,16.74,18.21,26.99,4.5,10.26,6.75,21.24,6.75,32.96"
-                />
-                <path
-                  className="fill-white"
-                  d="M107.02,175.8h-27.38c-2.1,0-3.88.74-5.35,2.2-1.47,1.47-2.2,3.25-2.2,5.34v46.77c0,2.09-.73,3.87-2.19,5.34-1.46,1.47-3.23,2.2-5.31,2.2H17.44c-2.08,0-3.85-.73-5.31-2.2-1.46-1.46-2.18-3.24-2.18-5.34V15.4c0-2.09.73-3.87,2.2-5.34,1.46-1.46,3.24-2.2,5.34-2.2h96.05c11.72,0,22.76,2.2,33.11,6.59,10.36,4.39,19.35,10.47,26.99,18.21,7.64,7.74,13.7,16.74,18.21,26.99,4.5,10.26,6.75,21.24,6.75,32.96s-1.89,22.65-5.66,32.8c-3.78,10.15-9.5,18.94-17.15,26.37-7.66,7.43-17.2,13.29-28.63,17.58-11.44,4.29-24.81,6.43-40.12,6.43ZM109.31,65.63h-29.65c-2.11,0-3.89.73-5.37,2.19-1.47,1.46-2.21,3.22-2.21,5.3v36.81c0,2.08.74,3.85,2.21,5.31,1.47,1.46,3.26,2.18,5.37,2.18h33.75c7.99,0,13.83-2.55,17.5-7.64s5.52-10.87,5.52-17.32c0-3.32-.58-6.6-1.74-9.83-1.16-3.22-2.89-6.08-5.2-8.58s-5.15-4.53-8.51-6.09-7.26-2.34-11.67-2.34Z"
-                />
-                <path
-                  className="fill-black"
-                  d="M97.08,167.93h-27.38c-2.1,0-3.88.74-5.35,2.2-1.47,1.47-2.2,3.25-2.2,5.34v46.77c0,2.09-.73,3.87-2.19,5.34-1.46,1.47-3.23,2.2-5.31,2.2H7.49c-2.08,0-3.85-.73-5.31-2.2-1.46-1.46-2.18-3.24-2.18-5.34V7.53c0-2.09.73-3.87,2.2-5.34C3.66.74,5.44,0,7.53,0h96.05c11.72,0,22.76,2.2,33.11,6.59,10.36,4.39,19.35,10.47,26.99,18.21,7.64,7.74,13.7,16.74,18.21,26.99,4.5,10.26,6.75,21.24,6.75,32.96s-1.89,22.65-5.66,32.8c-3.78,10.15-9.5,18.94-17.15,26.37-7.66,7.43-17.2,13.29-28.63,17.58-11.44,4.29-24.81,6.43-40.12,6.43ZM99.37,57.76h-29.65c-2.11,0-3.89.73-5.37,2.19-1.47,1.46-2.21,3.22-2.21,5.3v36.81c0,2.08.74,3.85,2.21,5.31,1.47,1.46,3.26,2.18,5.37,2.18h33.75c7.99,0,13.83-2.55,17.5-7.64s5.52-10.87,5.52-17.32c0-3.32-.58-6.6-1.74-9.83-1.16-3.22-2.89-6.08-5.2-8.58s-5.15-4.53-8.51-6.09-7.26-2.34-11.67-2.34Z"
-                />
-              </g>
-            </g>
-          </svg>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
@@ -216,22 +186,23 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {trendingEvents.map((event, index) => (
               <Card key={index} className="overflow-hidden">
-                <CardHeader className="p-0">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={event.image}
-                      alt={event.title}
-                      layout="fill"
-                      objectFit="cover"
-                    />
-                  </div>
+                <CardHeader>
+                  <Image
+                    src={event.image}
+                    alt={event.title}
+                    className="h-32 w-full object-cover"
+                    width={300}
+                    height={200}
+                  />
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent>
                   <CardTitle>{event.title}</CardTitle>
                   <CardDescription>{event.description}</CardDescription>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full">View Details</Button>
+                  <Button variant="default" className="w-full">
+                    View Details
+                  </Button>
                 </CardFooter>
               </Card>
             ))}

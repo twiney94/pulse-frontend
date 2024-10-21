@@ -44,8 +44,7 @@ export default function SignUpPage() {
     setError("");
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URI + "/auth/register";
-      await httpRequest(backendUrl, "POST", { email: values.email, password: values.password });
+      await httpRequest("/auth/register", "POST", { email: values.email, password: values.password });
 
       router.push("/login");
     } catch (error: any) {
