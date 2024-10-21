@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <BackToHome corner="top-left" />
+      <BackToHome corner="top-left" to="/login" />
       <div className="flex-1 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>

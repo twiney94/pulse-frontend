@@ -1,6 +1,5 @@
 "use client";
 
-import { ReactNode } from "react";
 import {
   Card,
   CardContent,
@@ -28,6 +27,7 @@ const searchResults = [
     id: 1,
     title: "Coffee Shop",
     description: "A cozy place with great espresso",
+    timestamp: 1630000000000,
     location: {
       lat: 48.8655, // Near Palais Garnier
       lng: 2.3324,
