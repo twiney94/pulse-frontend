@@ -1,51 +1,82 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-
 
 interface Location {
   place: string;
   lat: number;
   lng: number;
+  price: number;
+  id: number;
 }
 
 interface MapBoxProps {
-  locations: Location | Location[];
+  locations: Location[];
+  hoveredLocation: Location | null;
 }
 
-const MapBox: React.FC<MapBoxProps> = ({ locations }) => {
+const MapBox: React.FC<MapBoxProps> = ({ locations, hoveredLocation }) => {
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
+
   mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
 
-  React.useEffect(() => {
-    const map = new mapboxgl.Map({
-      container: "map",
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [0, 0],
-      zoom: 2,
-    });
+  useEffect(() => {
+    if (!mapRef.current && mapContainerRef.current) {
+      const initialCenter: [number, number] = locations.length > 0 ? [locations[0].lng, locations[0].lat] : [2.3522, 48.8566];
 
-    if (Array.isArray(locations)) {
-      locations.forEach((loc) => {
-        new mapboxgl.Marker()
-          .setLngLat([loc.lng, loc.lat])
-          .setPopup(new mapboxgl.Popup().setHTML(`<h3>${loc.place}</h3>`))
-          .addTo(map);
+      const map = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: initialCenter,
+        zoom: 12,
       });
-    } else {
-      new mapboxgl.Marker()
-        .setLngLat([locations.lng, locations.lat])
-        .setPopup(new mapboxgl.Popup().setHTML(`<h3>${locations.place}</h3>`))
-        .addTo(map);
-      map.setCenter([locations.lng, locations.lat]);
-      map.setZoom(10);
-    }
 
-    return () => map.remove();
+      mapRef.current = map;
+
+      map.on('load', () => {
+        markersRef.current = locations.map((loc) => {
+          const badge = document.createElement('div');
+
+          // Add an onClick event to navigate to the event page
+          badge.innerHTML = loc.price === 0 ? 
+            '<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800 border-green-800 hover:bg-green-200 transition-all" style="cursor: pointer;">Free</span>' :
+            `<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-primary bg-white text-primary hover:bg-gray-100 transition-all" style="cursor: pointer;">${new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 2,
+              }).format(loc.price / 100)}</span>`;
+
+          badge.style.width = 'auto';
+          badge.style.height = 'auto';
+          badge.style.display = 'flex';
+          badge.style.alignItems = 'center';
+          badge.style.justifyContent = 'center';
+
+          badge.onclick = () => {
+            window.location.href = `/event/${loc.id}`;
+          };
+
+          const marker = new mapboxgl.Marker({ element: badge })
+            .setLngLat([loc.lng, loc.lat])
+            .addTo(map);
+          return marker;
+        });
+      });
+    }
   }, [locations]);
 
-return <div id="map" style={{ width: "100%", height: "100%" }} />;
+  useEffect(() => {
+    if (hoveredLocation && mapRef.current) {
+      const { lat, lng } = hoveredLocation;
+      mapRef.current.flyTo({ center: [lng, lat], zoom: 14, speed: 1, curve: 1.5 });
+    }
+  }, [hoveredLocation]);
+
+  return <div ref={mapContainerRef} className="rounded-lg" style={{ width: "100%", height: "100%" }} />;
 };
 
 export default MapBox;
