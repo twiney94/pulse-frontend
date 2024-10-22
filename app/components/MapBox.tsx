@@ -7,9 +7,14 @@ import type { Location } from "@/app/types/d";
 interface MapBoxProps {
   locations: Location[];
   hoveredLocation: Location | null;
+  mode?: "search" | "event";
 }
 
-const MapBox: React.FC<MapBoxProps> = ({ locations, hoveredLocation }) => {
+const MapBox: React.FC<MapBoxProps> = ({
+  locations,
+  hoveredLocation,
+  mode = "search",
+}) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -36,18 +41,21 @@ const MapBox: React.FC<MapBoxProps> = ({ locations, hoveredLocation }) => {
         markersRef.current = locations.map((loc) => {
           const badge = document.createElement("div");
 
-          // Add an onClick event to navigate to the event page
-          badge.innerHTML =
-            loc.price === 0
-              ? '<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800 border-green-800 hover:bg-green-200 transition-all" style="cursor: pointer;">Free</span>'
-              : `<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-primary bg-white text-primary hover:bg-gray-100 transition-all" style="cursor: pointer;">${new Intl.NumberFormat(
-                  "en-US",
-                  {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 2,
-                  }
-                ).format(loc.price / 100)}</span>`;
+          if (mode === "search") {
+            badge.innerHTML =
+              loc.price === 0
+                ? '<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800 border-green-800 hover:bg-green-200 transition-all" style="cursor: pointer;">Free</span>'
+                : `<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-primary bg-white text-primary hover:bg-gray-100 transition-all" style="cursor: pointer;">${new Intl.NumberFormat(
+                    "en-US",
+                    {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                    }
+                  ).format(loc.price / 100)}</span>`;
+          } else {
+            badge.innerHTML = `<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-primary bg-white text-primary hover:bg-gray-100 transition-all" style="cursor: pointer;">${loc.place}</span>`;
+          }
 
           badge.style.width = "auto";
           badge.style.height = "auto";
@@ -55,9 +63,19 @@ const MapBox: React.FC<MapBoxProps> = ({ locations, hoveredLocation }) => {
           badge.style.alignItems = "center";
           badge.style.justifyContent = "center";
 
-          badge.onclick = () => {
-            window.location.href = `/event/${loc.id}`;
-          };
+          if (mode === "search") {
+            badge.onclick = () => {
+              window.location.href = `/event/${loc.id}`;
+            };
+          } else {
+            // direct to google maps with the place
+            badge.onclick = () => {
+              window.open(
+                `https://www.google.com/maps/search/?api=1&query=${loc.lat},${loc.lng}`,
+                "_blank"
+              );
+            };
+          }
 
           const marker = new mapboxgl.Marker({ element: badge })
             .setLngLat([loc.lng, loc.lat])
