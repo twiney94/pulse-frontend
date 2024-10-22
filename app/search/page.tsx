@@ -10,121 +10,56 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Layout from "../components/Layout";
 import MapBox from "../components/MapBox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "../components/Badge";
 import Link from "next/link";
-
-type Location = {
-  lat: number;
-  lng: number;
-  place: string;
-  price: number;
-  id: number;
-};
-
-const searchResults = [
-  {
-    id: 1,
-    title: "Coffee Shop",
-    description: "A cozy place with great espresso",
-    timestamp: Date.now() + 1 * 24 * 60 * 60 * 1000,
-    location: {
-      lat: 48.8655, // Near Palais Garnier
-      lng: 2.3324,
-      place: "Café de la Paix, Paris",
-    },
-    price: 300, // 3.00 EUR
-  },
-  {
-    id: 2,
-    title: "Pizza Restaurant",
-    description: "Authentic Italian pizzas",  
-    location: {
-      lat: 48.8651, // Near Palais Garnier
-      lng: 2.3342,
-      place: "Pizza Pino, Paris",
-    },
-    price: 1500, // 15.00 EUR
-  },
-  {
-    id: 3,
-    title: "Bookstore",
-    description: "Wide selection of books and cozy reading nooks",
-    location: {
-      lat: 48.8566, // Near Notre-Dame
-      lng: 2.3522,
-      place: "Shakespeare and Company, Paris",
-    },
-    price: 0, // Free
-  },
-  {
-    id: 4,
-    title: "Park",
-    description: "Large green space with walking trails",
-    location: {
-      lat: 48.8534, // Near Île de la Cité
-      lng: 2.3499,
-      place: "Jardin des Tuileries, Paris",
-    },
-    price: 0, // Free
-  },
-  {
-    id: 5,
-    title: "Museum",
-    description: "Interactive exhibits on local history",
-    location: {
-      lat: 48.8611, // Near Louvre
-      lng: 2.3355,
-      place: "Louvre Museum, Paris",
-    },
-    price: 1500, // 15.00 EUR
-  },
-  {
-    id: 6,
-    title: "Gym",
-    description: "Modern equipment and group classes",
-    location: {
-      lat: 48.8423, // Near Gare de Lyon
-      lng: 2.3743,
-      place: "Club Med Gym, Paris",
-    },
-    price: 2000, // 20.00 EUR
-  },
-  {
-    id: 7,
-    title: "Movie Theater",
-    description: "Latest releases and comfortable seating",
-    location: {
-      lat: 48.8618, // Near Opéra
-      lng: 2.332,
-      place: "UGC Ciné Cité, Paris",
-    },
-    price: 1200, // 12.00 EUR
-  },
-  {
-    id: 8,
-    title: "Art Gallery",
-    description: "Rotating exhibits of local artists",
-    location: {
-      lat: 48.8845, // Near Montmartre
-      lng: 2.3431,
-      place: "Galerie Art Concept, Paris",
-    },
-    price: 0, // Free
-  },
-];
+import { httpRequest } from "../utils/http";
+import type { Event, Location } from "@/app/types/d";
+import LoadingScreen from "../components/LoadingScreen";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function SearchPage() {
   const [hoveredLocation, setHoveredLocation] = useState<Location | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<Event[]>([]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await httpRequest<Event[]>("/events");
+        const results = response["hydra:member"];
+        setSearchResults(results);
+        setLoading(false);
+      } catch (error: any) {
+        setError(error.message);
+        setSearchResults([]);
+        setLoading(false);
+      }
+
+    };
+
+    fetchEvents();
+  }, []);
 
   const locations = searchResults.map((result) => ({
-    ...result.location,
+    lat: result.lat,
+    lng: result.long,
+    place: result.place,
     price: result.price ?? 0,
     id: result.id,
   }));
 
+  if (loading) return <LoadingScreen />;
+
   return (
     <Layout>
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>  
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="md:pr-4">
           <ScrollArea className="h-[calc(100vh-8rem)]">
@@ -137,13 +72,21 @@ export default function SearchPage() {
                 >
                   <Card
                     className="flex transition-shadow hover:shadow-md"
-                    onMouseEnter={() => setHoveredLocation({ ...result.location, price: result.price, id: result.id })}
+                    onMouseEnter={() =>
+                      setHoveredLocation({
+                        lat: result.lat,
+                        lng: result.long,
+                        place: result.place,
+                        price: result.price,
+                        id: result.id,
+                      })
+                    }
                     onMouseLeave={() => setHoveredLocation(null)}
                   >
                     <div className="flex-grow">
                       <CardHeader>
                         <CardTitle>{result.title}</CardTitle>
-                        <CardDescription>{result.description}</CardDescription>
+                        <CardDescription>{result.overview}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         {result.price === 0 ? (
