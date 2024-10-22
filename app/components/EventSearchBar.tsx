@@ -3,6 +3,10 @@ import { Input } from "@/components/ui/input"
 import { Search, MapPin } from "lucide-react"
 
 export default function EventSearchBar() {
+  const handleSearch = () => {
+    window.location.href = "/search";
+  };
+
   return (
     <div className="flex flex-1 w-full mx-8 items-center space-x-1 rounded-md border bg-white shadow-sm">
       <div className="relative flex-1">
@@ -21,10 +25,11 @@ export default function EventSearchBar() {
           className="w-full rounded-none border-0 border-l border-gray-200 pl-9 focus-visible:ring-0"
         />
       </div>
-      <Button 
-        type="submit" 
+      <Button
+        type="button" 
         size="icon" 
         className="h-10 w-10 shrink-0 rounded-r-md bg-red-500 hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+        onClick={handleSearch}
       >
         <Search className="h-4 w-4" />
         <span className="sr-only">Search</span>

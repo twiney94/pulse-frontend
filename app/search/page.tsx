@@ -27,7 +27,7 @@ const searchResults = [
     id: 1,
     title: "Coffee Shop",
     description: "A cozy place with great espresso",
-    timestamp: 1630000000000,
+    timestamp: Date.now() + 1 * 24 * 60 * 60 * 1000,
     location: {
       lat: 48.8655, // Near Palais Garnier
       lng: 2.3324,
@@ -38,7 +38,7 @@ const searchResults = [
   {
     id: 2,
     title: "Pizza Restaurant",
-    description: "Authentic Italian pizzas",
+    description: "Authentic Italian pizzas",  
     location: {
       lat: 48.8651, // Near Palais Garnier
       lng: 2.3342,
