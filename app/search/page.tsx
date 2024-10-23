@@ -17,6 +17,8 @@ import { httpRequest } from "../utils/http";
 import type { Event, Location } from "@/app/types/d";
 import LoadingScreen from "../components/LoadingScreen";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function SearchPage() {
   const [hoveredLocation, setHoveredLocation] = useState<Location | null>(null);
@@ -36,7 +38,6 @@ export default function SearchPage() {
         setSearchResults([]);
         setLoading(false);
       }
-
     };
 
     fetchEvents();
@@ -58,67 +59,80 @@ export default function SearchPage() {
         <Alert variant="destructive" className="mb-4">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
-        </Alert>  
+        </Alert>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="md:pr-4">
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            <div className="space-y-4 mr-8">
-              {searchResults.map((result) => (
-                <Link
-                  href={`/event/${result.id}`}
-                  key={result.id}
-                  className="block"
-                >
-                  <Card
-                    className="flex transition-shadow hover:shadow-md"
-                    onMouseEnter={() =>
-                      setHoveredLocation({
-                        lat: result.lat,
-                        lng: result.long,
-                        place: result.place,
-                        price: result.price,
-                        id: result.id,
-                      })
-                    }
-                    onMouseLeave={() => setHoveredLocation(null)}
-                  >
-                    <div className="flex-grow">
-                      <CardHeader>
-                        <CardTitle>{result.title}</CardTitle>
-                        <CardDescription>{result.overview}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        {result.price === 0 ? (
-                          <Badge className="bg-green-100 text-green-800 border-green-800">
-                            Free
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-background border-primary text-primary">
-                            {new Intl.NumberFormat("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                              minimumFractionDigits: 2,
-                            }).format(result.price / 100)}
-                          </Badge>
-                        )}
-                      </CardContent>
-                    </div>
-                    <div className="w-24 bg-muted flex items-center justify-center">
-                      <span className="text-muted-foreground">Image</span>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-        <div className="hidden md:block">
-          <div className="bg-muted h-[calc(100vh-8rem)] rounded-lg flex items-center justify-center">
-            <MapBox locations={locations} hoveredLocation={hoveredLocation} />
+      {searchResults.length === 0 && !error ? (
+        <div className="flex flex-col items-center justify-center min-h-80 bg-background text-foreground">
+          <div className="text-center space-y-6 max-w-md">
+            <h1 className="text-2xl font-bold tracking-tight">
+              No events found
+            </h1>
+            <p className="text-muted-foreground">
+              It looks like no event that matches your criteria has been found.
+            </p>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:pr-4">
+            <ScrollArea className="h-[calc(100vh-8rem)]">
+              <div className="space-y-4 mr-8">
+                {searchResults.map((result) => (
+                  <Link
+                    href={`/event/${result.id}`}
+                    key={result.id}
+                    className="block"
+                  >
+                    <Card
+                      className="flex transition-shadow hover:shadow-md"
+                      onMouseEnter={() =>
+                        setHoveredLocation({
+                          lat: result.lat,
+                          lng: result.long,
+                          place: result.place,
+                          price: result.price,
+                          id: result.id,
+                        })
+                      }
+                      onMouseLeave={() => setHoveredLocation(null)}
+                    >
+                      <div className="flex-grow">
+                        <CardHeader>
+                          <CardTitle>{result.title}</CardTitle>
+                          <CardDescription>{result.overview}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {result.price === 0 ? (
+                            <Badge className="bg-green-100 text-green-800 border-green-800">
+                              Free
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-background border-primary text-primary">
+                              {new Intl.NumberFormat("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                                minimumFractionDigits: 2,
+                              }).format(result.price / 100)}
+                            </Badge>
+                          )}
+                        </CardContent>
+                      </div>
+                      <div className="w-24 bg-muted flex items-center justify-center">
+                        <span className="text-muted-foreground">Image</span>
+                      </div>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+          <div className="hidden md:block">
+            <div className="bg-muted h-[calc(100vh-8rem)] rounded-lg flex items-center justify-center">
+              <MapBox locations={locations} hoveredLocation={hoveredLocation} />
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
