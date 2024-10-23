@@ -21,7 +21,7 @@ export function Logo() {
   return <Image src={pulseLogo} alt="Pulse" className="object-cover" />;
 }
 
-export default function Navbar() {
+export default function NavBar() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
