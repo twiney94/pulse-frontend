@@ -15,10 +15,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, XIcon } from "lucide-react";
 import { format } from "date-fns";
 import Layout from "@/app/components/Layout";
 import LocationPicker from "@/app/components/LocationPicker";
+import { Badge } from "@/components/ui/badge"; // Assuming Badge component is available
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -40,6 +41,8 @@ const validationSchema = Yup.object().shape({
 
 export default function CreateEventPage() {
   const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [inputTag, setInputTag] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
 
   const initialValues = {
     title: "Event Title",
@@ -55,12 +58,32 @@ export default function CreateEventPage() {
     submitType: "",
   };
 
-  const handleSubmit = (
-    values: { submitType: any },
-    { setSubmitting }: any
-  ) => {
+  const handleTagInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.includes(",")) {
+      const newTag = value.replace(",", "").trim();
+      if (newTag && !tags.includes(newTag)) {
+        setTags((prevTags) => [...prevTags, newTag]);
+        setInputTag("");
+      }
+    } else {
+      setInputTag(value);
+    }
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && inputTag === "") {
+      setTags((prevTags) => prevTags.slice(0, -1));
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags((prevTags) => prevTags.filter((tag) => tag !== tagToRemove));
+  };
+
+  const handleSubmit = (values: { submitType: any }, { setSubmitting }: any) => {
     const status = values.submitType;
-    console.log({ ...values, status, thumbnail });
+    console.log({ ...values, status, thumbnail, tags });
     setSubmitting(false);
   };
 
@@ -113,6 +136,7 @@ export default function CreateEventPage() {
                       mode="single"
                       selected={values.timestamp}
                       onSelect={(date) => setFieldValue("timestamp", date)}
+                      disabled={{ before: new Date() }}
                       initialFocus
                     />
                   </PopoverContent>
@@ -148,23 +172,29 @@ export default function CreateEventPage() {
                 />
               </div>
 
+              {/* Tags Field */}
               <div>
-                <Label htmlFor="tags">Event Tags (comma-separated)</Label>
-                <Field
-                  name="tags"
-                  as={Input}
+                <Label htmlFor="tags">Event Tags</Label>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="flex items-center space-x-1">
+                      <span>{tag}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeTag(tag)}
+                      >
+                        <XIcon className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+                <Input
                   id="tags"
-                  onChange={(e: { target: { value: string; }; }) => {
-                    const tags = e.target.value
-                      .split(",")
-                      .map((tag) => tag.trim());
-                    setFieldValue("tags", tags);
-                  }}
-                />
-                <ErrorMessage
-                  name="tags"
-                  component="div"
-                  className="text-red-500 text-sm"
+                  value={inputTag}
+                  onChange={handleTagInput}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder="Type and press ',' to add a tag"
                 />
               </div>
 

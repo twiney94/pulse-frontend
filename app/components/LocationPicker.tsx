@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { SearchBox } from "@mapbox/search-js-react";
 import { Label } from "@/components/ui/label";
 import { ErrorMessage } from "formik";
-import { Input } from "@/components/ui/input";
 
 interface LocationPickerProps {
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
@@ -42,7 +41,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
     <div>
       <Label htmlFor="place">Event Location</Label>
       <SearchBox
-        value={place}
+        value={selectedPlace}
         accessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN as string}
         onRetrieve={handleSearchResult}
         options={{
