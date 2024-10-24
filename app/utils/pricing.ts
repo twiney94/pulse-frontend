@@ -6,4 +6,8 @@ const convertCentsToDollars = (cents: number) => {
   }).format(cents / 100);
 };
 
-export { convertCentsToDollars };
+const convertDollarsToCents = (dollars: number) => {
+  return dollars * 100;
+}
+
+export { convertCentsToDollars, convertDollarsToCents };

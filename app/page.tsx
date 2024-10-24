@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Music,
-  Film,
-  Coffee,
-  Utensils,
-  Palette,
-} from "lucide-react";
+import { Music, Film, Coffee, Utensils, Palette } from "lucide-react";
 import Image from "next/legacy/image";
 import { Button } from "@/components/ui/button";
 import pulseLogo from "@/public/pulse@2x.png";
@@ -19,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import NavBar from "@/app/components/NavBar";
+import Layout from "./components/Layout";
 
 export function Logo() {
   return <Image src={pulseLogo} alt="Pulse" className="object-cover" />;
@@ -94,9 +88,7 @@ function ImageAccordion() {
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <NavBar />
-      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
+    <Layout>
         <div className="mx-auto w-full max-w-6xl">
           <ImageAccordion />
           <div className="mt-8 flex justify-center space-x-4">
@@ -142,7 +134,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </main>
-    </div>
+    </Layout>
   );
 }

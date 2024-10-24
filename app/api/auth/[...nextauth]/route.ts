@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NextAuthOptions } from "next-auth";
+import { decode } from "jsonwebtoken";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,23 +13,31 @@ export const authOptions: NextAuthOptions = {
       },
       authorize: async (credentials) => {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URI}/auth`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials),
-          });
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URI}/auth`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(credentials),
+            }
+          );
 
           const data = await res.json();
+
+          const jwt = decode(data.token);
 
           if (!res.ok) {
             throw new Error(data.message || "Authentication failed");
           }
 
           if (data.token) {
-            return { id: data.userId, token: data.token };
+            if (jwt && typeof jwt === 'object' && 'id' in jwt) {
+              return { _id: jwt.id, token: data.token };
+            }
+            throw new Error("Invalid token");
           }
-          
-          return null;
+
+          return data;
         } catch (error: any) {
           throw new Error(error.message);
         }
@@ -39,11 +48,13 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = user.token;
+        token.user = user;
       }
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
+      session.accessToken = token.accessToken;
+      session.user = token.user;
       return session;
     },
   },

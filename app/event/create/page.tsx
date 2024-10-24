@@ -17,7 +17,7 @@ import {
 import { format } from "date-fns";
 import Layout from "@/app/components/Layout";
 import LocationPicker from "@/app/components/LocationPicker";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/app/utils/upload_image";
@@ -79,6 +79,8 @@ import {
 import "ckeditor5/ckeditor5.css";
 
 import { Badge } from "@/components/ui/badge";
+import { httpRequest } from "@/app/utils/http";
+import { convertDollarsToCents } from "@/app/utils/pricing";
 
 const tagOptions: Array<{ label: string; value: tags; icon: JSX.Element }> = [
   {
@@ -239,7 +241,7 @@ const validationSchema = Yup.object().shape({
 
 export default function CreateEventPage() {
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [selectedTags, setSelectedTags] = useState<tags[]>([]); // Selected tags
+  const [selectedTags, setSelectedTags] = useState<tags[]>([]);
 
   const { toast } = useToast();
   const { data: session, status } = useSession();
@@ -271,7 +273,7 @@ export default function CreateEventPage() {
   };
 
   const handleSubmit = async (
-    values: { submitType: any; thumbnail?: string },
+    values: { submitType: any; thumbnail?: string, price: number },
     { setSubmitting }: any
   ) => {
     if (thumbnail) {
@@ -279,6 +281,53 @@ export default function CreateEventPage() {
       values.thumbnail = imageUrl;
     }
     console.log({ ...values, tags: selectedTags });
+    console.log(session);
+    const userId = await getSession();
+
+    if (userId?.user) {
+      if ("_id" in userId.user) {
+        const response = await httpRequest(
+          "/events",
+          "POST",
+          {
+            ...values,
+            price: convertDollarsToCents(values.price),
+            tags: selectedTags,
+            status: values.submitType === "publish" ? "published" : "draft",
+            organizer: "users/" + userId.user._id,
+          },
+          { "Content-Type": "application/ld+json" }
+        );
+
+        if ((response as { status: number }).status === 201) {
+          toast({
+            title: "Event created",
+            description: "Your event has been successfully created",
+            variant: "default",
+          });
+          router.push(`/`);
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to create event",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create event",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to create event",
+        variant: "destructive",
+      });
+    }
+
     setSubmitting(false);
   };
 
@@ -385,7 +434,6 @@ export default function CreateEventPage() {
                 <Label htmlFor="overview">Event Overview*</Label>
                 <CKEditor
                   editor={ClassicEditor}
-                  {/* @ts-ignore */}
                   config={editorConfig}
                   data={values.overview}
                   onChange={(event, editor) => {
@@ -525,14 +573,24 @@ export default function CreateEventPage() {
                 />
               </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="default"
-                disabled={!dirty || !isValid}
-              >
-                Create Event
-              </Button>
+              {/* Submit Button, either create as draft or create and publish */}
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  disabled={!isValid || !dirty}
+                  onClick={() => setFieldValue("submitType", "draft")}
+                >
+                  Save as Draft
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!isValid || !dirty}
+                  onClick={() => setFieldValue("submitType", "publish")}
+                >
+                  Save and Publish
+                </Button>
+              </div>
             </Form>
           )}
         </Formik>
