@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
@@ -176,6 +177,17 @@ export default function CreateEventPage() {
         >
           {({ isValid, dirty, setFieldValue, values }) => (
             <Form className="space-y-6">
+              {thumbnail && (
+                <div className="w-full relative h-64 rounded-lg">
+                  <Image
+                    src={URL.createObjectURL(thumbnail)}
+                    alt={values.title}
+                    objectFit="cover"
+                    layout="fill"
+                    className="rounded-lg"
+                  />
+                </div>
+              )}
               <h1 className="text-3xl font-bold mb-6">{values.title}</h1>
               {/* Event Title */}
               <div>
@@ -354,7 +366,6 @@ export default function CreateEventPage() {
                       id="capacity"
                       type="number"
                       min="1"
-                      defaultValue="1"
                     />
                   </div>
 
