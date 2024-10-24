@@ -15,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, XIcon, ChevronsUpDown, Check } from "lucide-react";
 import { format } from "date-fns";
 import Layout from "@/app/components/Layout";
 import LocationPicker from "@/app/components/LocationPicker";
@@ -32,16 +31,78 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import type { tags } from "@/app/types/d";
+import {
+  CalendarIcon,
+  ChevronsUpDown,
+  Check,
+  Volleyball,
+  Music,
+  Palette,
+  Utensils,
+  Beer,
+  PartyPopper,
+  GraduationCap,
+  Briefcase,
+  Heart,
+  Users,
+  User,
+  MoreHorizontal,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-// Define available tag options
-const tagOptions = [
-  { value: "workshop", label: "Workshop" },
-  { value: "conference", label: "Conference" },
-  { value: "webinar", label: "Webinar" },
-  { value: "meetup", label: "Meetup" },
+const tagOptions: Array<{ label: string; value: tags; icon: JSX.Element }> = [
+  {
+    label: "Sport",
+    value: "sport",
+    icon: <Volleyball className="mr-2 h-4 w-4" />,
+  },
+  {
+    label: "Culture",
+    value: "culture",
+    icon: <Palette className="mr-2 h-4 w-4" />,
+  },
+  { label: "Music", value: "music", icon: <Music className="mr-2 h-4 w-4" /> },
+  { label: "Art", value: "art", icon: <Palette className="mr-2 h-4 w-4" /> },
+  { label: "Food", value: "food", icon: <Utensils className="mr-2 h-4 w-4" /> },
+  { label: "Drink", value: "drink", icon: <Beer className="mr-2 h-4 w-4" /> },
+  {
+    label: "Party",
+    value: "party",
+    icon: <PartyPopper className="mr-2 h-4 w-4" />,
+  },
+  {
+    label: "Education",
+    value: "education",
+    icon: <GraduationCap className="mr-2 h-4 w-4" />,
+  },
+  {
+    label: "Business",
+    value: "business",
+    icon: <Briefcase className="mr-2 h-4 w-4" />,
+  },
+  {
+    label: "Charity",
+    value: "charity",
+    icon: <Heart className="mr-2 h-4 w-4" />,
+  },
+  {
+    label: "Family",
+    value: "family",
+    icon: <Users className="mr-2 h-4 w-4" />,
+  },
+  {
+    label: "Friends",
+    value: "friends",
+    icon: <User className="mr-2 h-4 w-4" />,
+  },
+  {
+    label: "Other",
+    value: "other",
+    icon: <MoreHorizontal className="mr-2 h-4 w-4" />,
+  },
 ];
 
-// Validation schema for the form
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
   timestamp: Yup.date().required("Date and time are required"),
@@ -62,7 +123,7 @@ const validationSchema = Yup.object().shape({
 
 export default function CreateEventPage() {
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]); // Selected tags
+  const [selectedTags, setSelectedTags] = useState<tags[]>([]); // Selected tags
 
   const { toast } = useToast();
   const { data: session, status } = useSession();
@@ -87,7 +148,7 @@ export default function CreateEventPage() {
     long: 0,
     overview: "",
     tags: [],
-    capacity: 0,
+    capacity: 1,
     unlimited: false,
     price: 0,
     submitType: "",
@@ -252,6 +313,7 @@ export default function CreateEventPage() {
                                     : "opacity-0"
                                 )}
                               />
+                              {tag.icon}
                               {tag.label}
                             </CommandItem>
                           ))}
@@ -285,13 +347,17 @@ export default function CreateEventPage() {
               {!values.unlimited && (
                 <div>
                   <Label htmlFor="capacity">Capacity</Label>
-                  <Field
-                    name="capacity"
-                    as={Input}
-                    id="capacity"
-                    type="number"
-                    min="1"
-                  />
+                  <div className="flex">
+                    <Field
+                      name="capacity"
+                      as={Input}
+                      id="capacity"
+                      type="number"
+                      min="1"
+                      defaultValue="1"
+                    />
+                  </div>
+
                   <ErrorMessage
                     name="capacity"
                     component="div"
@@ -301,9 +367,29 @@ export default function CreateEventPage() {
               )}
 
               {/* Event Price */}
-              <div>
-                <Label htmlFor="price">Event Price</Label>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2 items-center">
+                  <Label htmlFor="price">Event Price ($)</Label>
+                  <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                    0 for free
+                  </kbd>
+                </div>
                 <Field name="price" as={Input} id="price" type="number" />
+                {values.price === 0 ? (
+                  <Badge
+                    variant="default"
+                    className=" bg-green-600 hover:bg-green-700 place-self-start"
+                  >
+                    Free
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="default"
+                    className=" bg-red-600 hover:bg-red-700 place-self-start"
+                  >
+                    Pay-to-attend
+                  </Badge>
+                )}
                 <ErrorMessage
                   name="price"
                   component="div"
