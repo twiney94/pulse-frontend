@@ -135,23 +135,23 @@ const tagOptions: Array<{ label: string; value: tags; icon: JSX.Element }> = [
 const editorConfig = {
   toolbar: {
     items: [
-      'undo',
-      'redo',
-      '|',
-      'heading',
-      '|',
-      'bold',
-      'italic',
-      'underline',
-      '|',
-      'link',
-      'insertTable',
-      'blockQuote',
-      '|',
-      'outdent',
-      'indent'
+      "undo",
+      "redo",
+      "|",
+      "heading",
+      "|",
+      "bold",
+      "italic",
+      "underline",
+      "|",
+      "link",
+      "insertTable",
+      "blockQuote",
+      "|",
+      "outdent",
+      "indent",
     ],
-    shouldNotGroupWhenFull: false
+    shouldNotGroupWhenFull: false,
   },
   plugins: [
     AccessibilityHelp,
@@ -175,72 +175,49 @@ const editorConfig = {
     TableToolbar,
     TextTransformation,
     Underline,
-    Undo
+    Undo,
   ],
   heading: {
     options: [
+      { model: "paragraph", title: "Paragraph", class: "ck-heading_paragraph" },
       {
-        model: 'paragraph' as const,
-        title: 'Paragraph',
-        class: 'ck-heading_paragraph text-base'
+        model: "heading1",
+        view: "h1",
+        title: "Heading 1",
+        class: "ck-heading_heading1",
       },
       {
-        model: 'heading1' as const,
-        view: 'h1',
-        title: 'Heading 1',
-        class: 'ck-heading_heading1 text-2xl font-bold'
+        model: "heading2",
+        view: "h2",
+        title: "Heading 2",
+        class: "ck-heading_heading2",
       },
-      {
-        model: 'heading2' as const,
-        view: 'h2',
-        title: 'Heading 2',
-        class: 'ck-heading_heading2 text-xl font-bold'
-      },
-      {
-        model: 'heading3' as const,
-        view: 'h3',
-        title: 'Heading 3',
-        class: 'ck-heading_heading3 text-lg font-bold'
-      },
-      {
-        model: 'heading4' as const,
-        view: 'h4',
-        title: 'Heading 4',
-        class: 'ck-heading_heading4 text-base font-bold'
-      },
-      {
-        model: 'heading5' as const,
-        view: 'h5',
-        title: 'Heading 5',
-        class: 'ck-heading_heading5 text-sm font-bold'
-      },
-      {
-        model: 'heading6' as const,
-        view: 'h6',
-        title: 'Heading 6',
-        class: 'ck-heading_heading6 text-xs font-bold'
-      }
-    ] as Array<{ model: 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'heading4' | 'heading5' | 'heading6'; view?: string; title: string; class: string }>
+    ],
   },
   link: {
     addTargetToExternalLinks: true,
-    defaultProtocol: 'https://',
+    defaultProtocol: "https://",
     decorators: {
       toggleDownloadable: {
-        mode: 'manual',
-        label: 'Downloadable',
+        mode: "manual",
+        label: "Downloadable",
         attributes: {
-          download: 'file'
-        }
-      }
-    }
+          download: "file",
+        },
+      },
+    },
   },
-  placeholder: 'Type or paste your content here!',
+  placeholder: "Type or paste your content here!",
   table: {
-    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
-  }
+    contentToolbar: [
+      "tableColumn",
+      "tableRow",
+      "mergeTableCells",
+      "tableProperties",
+      "tableCellProperties",
+    ],
+  },
 };
-
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -329,7 +306,7 @@ export default function CreateEventPage() {
               <h1 className="text-3xl font-bold mb-6">{values.title}</h1>
               {/* Event Title */}
               <div>
-                <Label htmlFor="title">Event Title</Label>
+                <Label htmlFor="title">Event Title*</Label>
                 <Field name="title" as={Input} id="title" />
                 <ErrorMessage
                   name="title"
@@ -355,7 +332,7 @@ export default function CreateEventPage() {
 
               {/* Event Date and Time */}
               <div className="flex flex-col gap-2">
-                <Label>Event Date and Time</Label>
+                <Label>Event Date and Time*</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline">
@@ -405,7 +382,7 @@ export default function CreateEventPage() {
 
               {/* Event Overview */}
               <div>
-                <Label htmlFor="overview">Event Overview</Label>
+                <Label htmlFor="overview">Event Overview*</Label>
                 <CKEditor
                   editor={ClassicEditor}
                   config={editorConfig}
@@ -424,7 +401,7 @@ export default function CreateEventPage() {
 
               {/* Event Tags - Custom Combobox using Popover and Command */}
               <div>
-                <Label htmlFor="tags">Event Tags</Label>
+                <Label htmlFor="tags">Event Tags*</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -519,7 +496,7 @@ export default function CreateEventPage() {
               {/* Event Price */}
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2 items-center">
-                  <Label htmlFor="price">Event Price ($)</Label>
+                  <Label htmlFor="price">Event Price ($)*</Label>
                   <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
                     0 for free
                   </kbd>

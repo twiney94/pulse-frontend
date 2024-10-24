@@ -49,7 +49,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor="place">Event Location</Label>
+      <Label htmlFor="place">Event Location*</Label>
+      {/* @ts-ignore */}
       <SearchBox
         value={selectedPlace}
         theme={{
@@ -63,12 +64,10 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           },
         }}
         accessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN as string}
-        onChange={
-          (value) => {
-            setSelectedPlace(value);
-            setFieldValue("place", value);
-          }
-        }
+        onChange={(value) => {
+          setSelectedPlace(value);
+          setFieldValue("place", value);
+        }}
         onRetrieve={handleSearchResult}
         options={{
           limit: 5,
@@ -81,7 +80,11 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
         className="text-red-500 text-sm"
       />
       {selectedPlace && lat && long && (
-        <Button variant="ghost" onClick={() => setShowMap(!showMap)}>
+        <Button
+          variant="ghost"
+          onClick={() => setShowMap(!showMap)}
+          type="button"
+        >
           {/* Map icon */}
           <MapPin className="h-4 w-4 mr-2" />
           {showMap ? "Hide map" : "Show map"}
