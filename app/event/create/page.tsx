@@ -273,62 +273,53 @@ export default function CreateEventPage() {
   };
 
   const handleSubmit = async (
-    values: { submitType: any; thumbnail?: string, price: number },
+    values: { submitType: any; thumbnail?: string; price: number },
     { setSubmitting }: any
   ) => {
-    if (thumbnail) {
-      const imageUrl = await uploadImage(thumbnail);
-      values.thumbnail = imageUrl;
-    }
-    console.log({ ...values, tags: selectedTags });
-    console.log(session);
-    const userId = await getSession();
-
-    if (userId?.user) {
-      if ("_id" in userId.user) {
-        const response = await httpRequest(
-          "/events",
-          "POST",
-          {
-            ...values,
-            price: convertDollarsToCents(values.price),
-            tags: selectedTags,
-            status: values.submitType === "publish" ? "published" : "draft",
-            organizer: "users/" + userId.user._id,
-          },
-          { "Content-Type": "application/ld+json" }
-        );
-
-        if ((response as { status: number }).status === 201) {
-          toast({
-            title: "Event created",
-            description: "Your event has been successfully created",
-            variant: "default",
-          });
-          router.push(`/`);
-        } else {
-          toast({
-            title: "Error",
-            description: "Failed to create event",
-            variant: "destructive",
-          });
-        }
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to create event",
-          variant: "destructive",
-        });
+    try {
+      if (thumbnail) {
+        values.thumbnail = await uploadImage(thumbnail);
       }
-    } else {
+
+      const session = await getSession();
+      const userId = session?.user?._id;
+
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
+
+      const response = await httpRequest(
+        "/events",
+        "POST",
+        {
+          ...values,
+          price: convertDollarsToCents(values.price),
+          tags: selectedTags,
+          status: values.submitType === "publish" ? "published" : "draft",
+          organizer: `users/${userId}`,
+        },
+        { "Content-Type": "application/ld+json" }
+      );
+
+      if (!response) {
+        throw new Error("Failed to create event");
+      }
+
+      toast({
+        title: "Event created",
+        description: "Your event has been successfully created",
+        variant: "default",
+      });
+      router.push(`/`);
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: "Failed to create event",
+        description: (error as Error).message || "Failed to create event",
         variant: "destructive",
       });
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 
   return (

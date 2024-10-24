@@ -73,6 +73,28 @@ export default function EventDetailsPage() {
     }
   };
 
+  const isItFree = () => {
+    const price = convertCentsToDollars(eventDetails?.price ?? 0);
+    if (price === "$0.00") {
+      return true;
+    }
+  };
+
+  const ticketButtonPhrase = () => {
+    if (eventDetails?.unlimited) {
+      if (eventDetails?.price === 0) {
+        return "Get Ticket";
+      }
+      return "Buy Tickets";
+    } else if ((eventDetails?.remaining ?? 0) > 0) {
+      if (eventDetails?.price === 0) {
+        return "Get Ticket for Free";
+      }
+      return "Buy Tickets";
+    } else {
+      return "Sold Out";
+    }
+  };
 
   return (
     <Layout>
@@ -91,7 +113,10 @@ export default function EventDetailsPage() {
             <Skeleton className="absolute inset-0" />
           ) : (
             <Image
-              src={eventDetails?.thumbnail || "/placeholder.svg"}
+              src={
+                eventDetails?.thumbnail ||
+                `/event${Math.floor(Math.random() * 5) + 1}.jpg`
+              }
               alt={eventDetails?.title || "Event thumbnail"}
               layout="fill"
               objectFit="cover"
@@ -172,10 +197,7 @@ export default function EventDetailsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="font-semibold">Tech Convention Center</p>
-                    <p className="text-sm text-muted-foreground">
-                      123 Innovation Street, Silicon Valley, CA 94000
-                    </p>
+                    <p className="font-semibold">{eventDetails?.place}</p>
                     <Button
                       variant="link"
                       className="mt-2 p-0"
@@ -213,7 +235,12 @@ export default function EventDetailsPage() {
                     <CardTitle>Event Description</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p>{eventDetails?.overview}</p>
+                    {/* overview is html */}
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: eventDetails?.overview || "",
+                      }}
+                    />
                   </CardContent>
                 </Card>
               )}
@@ -240,12 +267,12 @@ export default function EventDetailsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="mb-4 text-2xl font-bold">
-                      {eventDetails
-                        ? convertCentsToDollars(eventDetails.price)
-                        : "N/A"}
+                      {isItFree()
+                        ? "Free"
+                        : convertCentsToDollars(eventDetails?.price || 0)}
                     </p>
                     <Button className="w-full" onClick={handleTicketPurchase}>
-                      Buy Tickets
+                      {ticketButtonPhrase()}
                     </Button>
                   </CardContent>
                 </Card>
