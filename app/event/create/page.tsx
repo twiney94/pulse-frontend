@@ -385,6 +385,7 @@ export default function CreateEventPage() {
                 <Label htmlFor="overview">Event Overview*</Label>
                 <CKEditor
                   editor={ClassicEditor}
+                  {/* @ts-ignore */}
                   config={editorConfig}
                   data={values.overview}
                   onChange={(event, editor) => {
