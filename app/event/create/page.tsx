@@ -15,27 +15,45 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, XIcon } from "lucide-react";
+import { CalendarIcon, XIcon, ChevronsUpDown, Check } from "lucide-react";
 import { format } from "date-fns";
 import Layout from "@/app/components/Layout";
 import LocationPicker from "@/app/components/LocationPicker";
-import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { uploadImage } from "@/app/utils/upload_image";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
+// Define available tag options
+const tagOptions = [
+  { value: "workshop", label: "Workshop" },
+  { value: "conference", label: "Conference" },
+  { value: "webinar", label: "Webinar" },
+  { value: "meetup", label: "Meetup" },
+];
+
+// Validation schema for the form
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
   timestamp: Yup.date().required("Date and time are required"),
   place: Yup.string().required("Location is required"),
   overview: Yup.string().required("Overview is required"),
-  tags: Yup.array().of(Yup.string()),
+  tags: Yup.array().of(Yup.string()).required("At least one tag is required"),
   capacity: Yup.number().when("unlimited", {
     is: false,
     then: (schema) =>
       schema
         .required("Capacity is required when not unlimited")
-        .positive("Capacity must be positive"),
+        .min(1, "Capacity must be at least 1"),
   }),
   price: Yup.number()
     .required("Price is required")
@@ -44,8 +62,7 @@ const validationSchema = Yup.object().shape({
 
 export default function CreateEventPage() {
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [inputTag, setInputTag] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]); // Selected tags
 
   const { toast } = useToast();
   const { data: session, status } = useSession();
@@ -76,35 +93,15 @@ export default function CreateEventPage() {
     submitType: "",
   };
 
-  const handleTagInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.includes(",")) {
-      const newTag = value.replace(",", "").trim();
-      if (newTag && !tags.includes(newTag)) {
-        setTags((prevTags) => [...prevTags, newTag]);
-        setInputTag("");
-      }
-    } else {
-      setInputTag(value);
-    }
-  };
-
-  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && inputTag === "") {
-      setTags((prevTags) => prevTags.slice(0, -1));
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setTags((prevTags) => prevTags.filter((tag) => tag !== tagToRemove));
-  };
-
-  const handleSubmit = (
-    values: { submitType: any },
+  const handleSubmit = async (
+    values: { submitType: any; thumbnail?: string },
     { setSubmitting }: any
   ) => {
-    const status = values.submitType;
-    console.log({ ...values, status, thumbnail, tags });
+    if (thumbnail) {
+      const imageUrl = await uploadImage(thumbnail);
+      values.thumbnail = imageUrl;
+    }
+    console.log({ ...values, tags: selectedTags });
     setSubmitting(false);
   };
 
@@ -119,6 +116,7 @@ export default function CreateEventPage() {
           {({ isValid, dirty, setFieldValue, values }) => (
             <Form className="space-y-6">
               <h1 className="text-3xl font-bold mb-6">{values.title}</h1>
+              {/* Event Title */}
               <div>
                 <Label htmlFor="title">Event Title</Label>
                 <Field name="title" as={Input} id="title" />
@@ -129,6 +127,7 @@ export default function CreateEventPage() {
                 />
               </div>
 
+              {/* Event Thumbnail */}
               <div>
                 <Label htmlFor="thumbnail">Event Thumbnail</Label>
                 <Input
@@ -143,6 +142,7 @@ export default function CreateEventPage() {
                 />
               </div>
 
+              {/* Event Date and Time */}
               <div className="flex flex-col gap-2">
                 <Label>Event Date and Time</Label>
                 <Popover>
@@ -184,13 +184,15 @@ export default function CreateEventPage() {
                 />
               </div>
 
-                <LocationPicker
+              {/* Location Picker */}
+              <LocationPicker
                 setFieldValue={setFieldValue}
                 place={values.place}
                 lat={values.lat}
                 long={values.long}
-                />
+              />
 
+              {/* Event Overview */}
               <div>
                 <Label htmlFor="overview">Event Overview</Label>
                 <CKEditor
@@ -208,36 +210,64 @@ export default function CreateEventPage() {
                 />
               </div>
 
-              {/* Tags Field */}
+              {/* Event Tags - Custom Combobox using Popover and Command */}
               <div>
                 <Label htmlFor="tags">Event Tags</Label>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="flex items-center space-x-1"
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={false}
+                      className="w-full justify-between"
                     >
-                      <span>{tag}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeTag(tag)}
-                      >
-                        <XIcon className="h-3 w-3" />
-                      </Button>
-                    </Badge>
-                  ))}
-                </div>
-                <Input
-                  id="tags"
-                  value={inputTag}
-                  onChange={handleTagInput}
-                  onKeyDown={handleTagKeyDown}
-                  placeholder="Type and press ',' to add a tag"
+                      {selectedTags.length > 0
+                        ? selectedTags.join(", ")
+                        : "Select tags..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput placeholder="Search tags..." />
+                      <CommandList>
+                        <CommandEmpty>No tags found.</CommandEmpty>
+                        <CommandGroup>
+                          {tagOptions.map((tag) => (
+                            <CommandItem
+                              key={tag.value}
+                              onSelect={() => {
+                                setSelectedTags((prev) =>
+                                  prev.includes(tag.value)
+                                    ? prev.filter((t) => t !== tag.value)
+                                    : [...prev, tag.value]
+                                );
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedTags.includes(tag.value)
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {tag.label}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <ErrorMessage
+                  name="tags"
+                  component="div"
+                  className="text-red-500 text-sm"
                 />
               </div>
 
+              {/* Unlimited Capacity Toggle */}
               <div className="flex items-center space-x-2">
                 <Field
                   name="unlimited"
@@ -251,14 +281,16 @@ export default function CreateEventPage() {
                 <Label htmlFor="unlimited">Unlimited Capacity</Label>
               </div>
 
+              {/* Capacity */}
               {!values.unlimited && (
                 <div>
-                  <Label htmlFor="capacity">Event Capacity</Label>
+                  <Label htmlFor="capacity">Capacity</Label>
                   <Field
                     name="capacity"
                     as={Input}
                     id="capacity"
                     type="number"
+                    min="1"
                   />
                   <ErrorMessage
                     name="capacity"
@@ -268,15 +300,10 @@ export default function CreateEventPage() {
                 </div>
               )}
 
+              {/* Event Price */}
               <div>
                 <Label htmlFor="price">Event Price</Label>
-                <Field
-                  name="price"
-                  as={Input}
-                  id="price"
-                  type="number"
-                  min="0"
-                />
+                <Field name="price" as={Input} id="price" type="number" />
                 <ErrorMessage
                   name="price"
                   component="div"
@@ -284,23 +311,14 @@ export default function CreateEventPage() {
                 />
               </div>
 
-              <div className="flex space-x-4">
-                <Button
-                  type="submit"
-                  variant="outline"
-                  disabled={!isValid || !dirty}
-                  onClick={() => setFieldValue("submitType", "draft")}
-                >
-                  Create as Draft
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!isValid || !dirty}
-                  onClick={() => setFieldValue("submitType", "published")}
-                >
-                  Create and Publish
-                </Button>
-              </div>
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="default"
+                disabled={!dirty || !isValid}
+              >
+                Create Event
+              </Button>
             </Form>
           )}
         </Formik>

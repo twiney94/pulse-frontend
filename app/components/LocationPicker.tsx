@@ -2,6 +2,9 @@ import { useCallback, useState } from "react";
 import { SearchBox } from "@mapbox/search-js-react";
 import { Label } from "@/components/ui/label";
 import { ErrorMessage } from "formik";
+import { Button } from "@/components/ui/button";
+import MapBox from "./MapBox";
+import { MapPin }from "lucide-react";
 
 interface LocationPickerProps {
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
@@ -17,17 +20,19 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   long,
 }) => {
   const [selectedPlace, setSelectedPlace] = useState(place);
+  const [showMap, setShowMap] = useState(false);
 
   const handleSearchResult = useCallback(
     (result: { features: string | any[] }) => {
       if (result && result.features && result.features.length > 0) {
+        setShowMap(false);
         const selectedFeature = result.features[0];
-        const { place_name, geometry } = selectedFeature;
+        const { properties, geometry } = selectedFeature;
         const [lng, lat] = geometry.coordinates;
 
-        setSelectedPlace(place_name);
+        setSelectedPlace(properties.name);
 
-        setFieldValue("place", place_name);
+        setFieldValue("place", properties.name);
         setFieldValue("lat", lat);
         setFieldValue("long", lng);
       }
@@ -43,10 +48,10 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <Label htmlFor="place">Event Location</Label>
       <SearchBox
-        value={cleanPlace}
+        value={selectedPlace}
         theme={{
           variables: {
             boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.1)",
@@ -70,9 +75,33 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
         component="div"
         className="text-red-500 text-sm"
       />
-      <p className="text-sm text-muted-foreground mt-1">
-        Latitude: {lat}, Longitude: {long}
-      </p>
+      {selectedPlace && lat && long && (
+        <Button
+          variant="ghost"
+          onClick={() => setShowMap(!showMap)}
+        >
+          {/* Map icon */}
+          <MapPin className="h-4 w-4 mr-2" />
+          {showMap ? "Hide map" : "Show map"}
+        </Button>
+      )}
+      {showMap && (
+        <div className="mt-4 h-[200px] w-full bg-muted">
+          <MapBox
+            locations={[
+              {
+                lat: lat || 0,
+                lng: long || 0,
+                place: selectedPlace || "",
+                price: 0,
+                id: "",
+              },
+            ]}
+            hoveredLocation={null}
+            mode="event"
+          />
+        </div>
+      )}
     </div>
   );
 };

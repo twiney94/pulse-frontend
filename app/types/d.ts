@@ -28,3 +28,5 @@ export interface Location {
   price: number;
   id: string;
 }
+
+export type tags = "sport" | "culture" | "music" | "art" | "food" | "drink" | "party" | "education" | "business" | "charity" | "family" | "friends" | "other";
