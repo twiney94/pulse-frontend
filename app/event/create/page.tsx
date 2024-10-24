@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/legacy/image";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +48,36 @@ import {
   User,
   MoreHorizontal,
 } from "lucide-react";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+
+import {
+  ClassicEditor,
+  AccessibilityHelp,
+  Autoformat,
+  Autosave,
+  BlockQuote,
+  Bold,
+  Essentials,
+  Heading,
+  Indent,
+  IndentBlock,
+  Italic,
+  Link,
+  Paragraph,
+  SelectAll,
+  Table,
+  TableCaption,
+  TableCellProperties,
+  TableColumnResize,
+  TableProperties,
+  TableToolbar,
+  TextTransformation,
+  Underline,
+  Undo,
+} from "ckeditor5";
+
+import "ckeditor5/ckeditor5.css";
+
 import { Badge } from "@/components/ui/badge";
 
 const tagOptions: Array<{ label: string; value: tags; icon: JSX.Element }> = [
@@ -103,6 +131,116 @@ const tagOptions: Array<{ label: string; value: tags; icon: JSX.Element }> = [
     icon: <MoreHorizontal className="mr-2 h-4 w-4" />,
   },
 ];
+
+const editorConfig = {
+  toolbar: {
+    items: [
+      'undo',
+      'redo',
+      '|',
+      'heading',
+      '|',
+      'bold',
+      'italic',
+      'underline',
+      '|',
+      'link',
+      'insertTable',
+      'blockQuote',
+      '|',
+      'outdent',
+      'indent'
+    ],
+    shouldNotGroupWhenFull: false
+  },
+  plugins: [
+    AccessibilityHelp,
+    Autoformat,
+    Autosave,
+    BlockQuote,
+    Bold,
+    Essentials,
+    Heading,
+    Indent,
+    IndentBlock,
+    Italic,
+    Link,
+    Paragraph,
+    SelectAll,
+    Table,
+    TableCaption,
+    TableCellProperties,
+    TableColumnResize,
+    TableProperties,
+    TableToolbar,
+    TextTransformation,
+    Underline,
+    Undo
+  ],
+  heading: {
+    options: [
+      {
+        model: 'paragraph' as const,
+        title: 'Paragraph',
+        class: 'ck-heading_paragraph text-base'
+      },
+      {
+        model: 'heading1' as const,
+        view: 'h1',
+        title: 'Heading 1',
+        class: 'ck-heading_heading1 text-2xl font-bold'
+      },
+      {
+        model: 'heading2' as const,
+        view: 'h2',
+        title: 'Heading 2',
+        class: 'ck-heading_heading2 text-xl font-bold'
+      },
+      {
+        model: 'heading3' as const,
+        view: 'h3',
+        title: 'Heading 3',
+        class: 'ck-heading_heading3 text-lg font-bold'
+      },
+      {
+        model: 'heading4' as const,
+        view: 'h4',
+        title: 'Heading 4',
+        class: 'ck-heading_heading4 text-base font-bold'
+      },
+      {
+        model: 'heading5' as const,
+        view: 'h5',
+        title: 'Heading 5',
+        class: 'ck-heading_heading5 text-sm font-bold'
+      },
+      {
+        model: 'heading6' as const,
+        view: 'h6',
+        title: 'Heading 6',
+        class: 'ck-heading_heading6 text-xs font-bold'
+      }
+    ] as Array<{ model: 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'heading4' | 'heading5' | 'heading6'; view?: string; title: string; class: string }>
+  },
+  link: {
+    addTargetToExternalLinks: true,
+    defaultProtocol: 'https://',
+    decorators: {
+      toggleDownloadable: {
+        mode: 'manual',
+        label: 'Downloadable',
+        attributes: {
+          download: 'file'
+        }
+      }
+    }
+  },
+  placeholder: 'Type or paste your content here!',
+  table: {
+    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+  }
+};
+
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -270,6 +408,7 @@ export default function CreateEventPage() {
                 <Label htmlFor="overview">Event Overview</Label>
                 <CKEditor
                   editor={ClassicEditor}
+                  config={editorConfig}
                   data={values.overview}
                   onChange={(event, editor) => {
                     const data = editor.getData();
