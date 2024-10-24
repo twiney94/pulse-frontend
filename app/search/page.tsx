@@ -17,8 +17,6 @@ import { httpRequest } from "../utils/http";
 import type { Event, Location } from "@/app/types/d";
 import LoadingScreen from "../components/LoadingScreen";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 
 export default function SearchPage() {
   const [hoveredLocation, setHoveredLocation] = useState<Location | null>(null);

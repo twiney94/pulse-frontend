@@ -15,7 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { convertDate } from "@/app/utils/datetime";
 import { convertCentsToDollars } from "@/app/utils/pricing";
 import MapBox from "@/app/components/MapBox";
-import LoadingScreen from "@/app/components/LoadingScreen";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 interface EventDetails {
   "@context": string;
   "@id": string;
@@ -40,6 +41,8 @@ interface EventDetails {
 }
 
 export default function EventDetailsPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
   const [showMap, setShowMap] = useState(false);
   const { id } = useParams();
 
@@ -61,6 +64,15 @@ export default function EventDetailsPage() {
 
     fetchEventDetails();
   }, [id]);
+
+  const handleTicketPurchase = () => {
+    if (session) {
+      router.push(`/event/${id}/book`);
+    } else {
+      router.push("/login");
+    }
+  };
+
 
   return (
     <Layout>
@@ -218,7 +230,6 @@ export default function EventDetailsPage() {
               )}
             </div>
 
-            {/* Ticket Price and Buy Button */}
             {error || loading ? (
               <Skeleton className="md:col-span-1" />
             ) : (
@@ -233,7 +244,9 @@ export default function EventDetailsPage() {
                         ? convertCentsToDollars(eventDetails.price)
                         : "N/A"}
                     </p>
-                    <Button className="w-full">Buy Tickets</Button>
+                    <Button className="w-full" onClick={handleTicketPurchase}>
+                      Buy Tickets
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
