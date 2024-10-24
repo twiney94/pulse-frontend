@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { ErrorMessage } from "formik";
 import { Button } from "@/components/ui/button";
 import MapBox from "./MapBox";
-import { MapPin }from "lucide-react";
+import { MapPin } from "lucide-react";
 
 interface LocationPickerProps {
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
@@ -59,11 +59,16 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
             padding: "0.5rem",
             fontFamily: "inherit",
             lineHeight: "1.5",
-            // colorBackground: "var(--color-background)",
             colorText: "var(--color-text)",
           },
         }}
         accessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN as string}
+        onChange={
+          (value) => {
+            setSelectedPlace(value);
+            setFieldValue("place", value);
+          }
+        }
         onRetrieve={handleSearchResult}
         options={{
           limit: 5,
@@ -76,10 +81,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
         className="text-red-500 text-sm"
       />
       {selectedPlace && lat && long && (
-        <Button
-          variant="ghost"
-          onClick={() => setShowMap(!showMap)}
-        >
+        <Button variant="ghost" onClick={() => setShowMap(!showMap)}>
           {/* Map icon */}
           <MapPin className="h-4 w-4 mr-2" />
           {showMap ? "Hide map" : "Show map"}
