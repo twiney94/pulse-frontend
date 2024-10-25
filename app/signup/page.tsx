@@ -32,6 +32,8 @@ const SignUpSchema = Yup.object().shape({
   passwordVerification: Yup.string()
     .oneOf([Yup.ref("password"), undefined], "Passwords must match")
     .required("Required"),
+  first_name: Yup.string().required("Required").max(50, "First name is too long"),
+  last_name: Yup.string().required("Required").max(50, "Last name is too long"),
 });
 
 export default function SignUpPage() {
@@ -85,95 +87,131 @@ export default function SignUpPage() {
               Sign up to get started with our platform
             </CardDescription>
           </CardHeader>
-          <Formik
-            initialValues={{ email: "", password: "", passwordVerification: "" }}
+            <Formik
+            initialValues={{ email: "", password: "", passwordVerification: "", first_name: "", last_name: "" }}
             validationSchema={SignUpSchema}
             onSubmit={handleSubmit} // Pass handleSubmit to Formik
-          >
+            >
             {({ errors, touched, isSubmitting }) => (
               <Form>
-                <CardContent className="space-y-4">
-                  {error && (
-                    <Alert variant="destructive">
-                      <ExclamationTriangleIcon className="h-4 w-4" />
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Field
-                      as={Input}
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      className={`${
-                        errors.email && touched.email ? "border-red-500" : ""
-                      }`}
-                    />
-                    <ErrorMessage
-                      name="email"
-                      component="div"
-                      className="text-red-600 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Field
-                      as={Input}
-                      id="password"
-                      name="password"
-                      type="password"
-                      placeholder="Create a password"
-                      className={`${
-                        errors.password && touched.password ? "border-red-500" : ""
-                      }`}
-                    />
-                    <ErrorMessage
-                      name="password"
-                      component="div"
-                      className="text-red-600 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="passwordVerification">Verify Password</Label>
-                    <Field
-                      as={Input}
-                      id="passwordVerification"
-                      name="passwordVerification"
-                      type="password"
-                      placeholder="Verify your password"
-                      className={`${
-                        errors.passwordVerification && touched.passwordVerification
-                          ? "border-red-500"
-                          : ""
-                      }`}
-                    />
-                    <ErrorMessage
-                      name="passwordVerification"
-                      component="div"
-                      className="text-red-600 text-sm"
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter className="flex flex-col space-y-4">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isSubmitting || isLoading}
-                  >
-                    {isSubmitting || isLoading ? "Signing up..." : "Sign up"}
-                  </Button>
-                  <p className="text-sm text-center text-gray-600">
-                    Already have an account?{" "}
-                    <Link href="/login" className="text-primary hover:underline">
-                      Log in
-                    </Link>
-                  </p>
-                </CardFooter>
+              <CardContent className="space-y-4">
+                {error && (
+                <Alert variant="destructive">
+                  <ExclamationTriangleIcon className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+                )}
+                <div className="space-y-2">
+                <Label htmlFor="first_name">First Name</Label>
+                <Field
+                  as={Input}
+                  id="first_name"
+                  name="first_name"
+                  type="text"
+                  placeholder="Enter your first name"
+                  className={`${
+                  errors.first_name && touched.first_name ? "border-red-500" : ""
+                  }`}
+                />
+                <ErrorMessage
+                  name="first_name"
+                  component="div"
+                  className="text-red-600 text-sm"
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="last_name">Last Name</Label>
+                <Field
+                  as={Input}
+                  id="last_name"
+                  name="last_name"
+                  type="text"
+                  placeholder="Enter your last name"
+                  className={`${
+                  errors.last_name && touched.last_name ? "border-red-500" : ""
+                  }`}
+                />
+                <ErrorMessage
+                  name="last_name"
+                  component="div"
+                  className="text-red-600 text-sm"
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Field
+                  as={Input}
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  className={`${
+                  errors.email && touched.email ? "border-red-500" : ""
+                  }`}
+                />
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="text-red-600 text-sm"
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Field
+                  as={Input}
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Create a password"
+                  className={`${
+                  errors.password && touched.password ? "border-red-500" : ""
+                  }`}
+                />
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="text-red-600 text-sm"
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="passwordVerification">Verify Password</Label>
+                <Field
+                  as={Input}
+                  id="passwordVerification"
+                  name="passwordVerification"
+                  type="password"
+                  placeholder="Verify your password"
+                  className={`${
+                  errors.passwordVerification && touched.passwordVerification
+                    ? "border-red-500"
+                    : ""
+                  }`}
+                />
+                <ErrorMessage
+                  name="passwordVerification"
+                  component="div"
+                  className="text-red-600 text-sm"
+                />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-4">
+                <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isLoading}
+                >
+                {isSubmitting || isLoading ? "Signing up..." : "Sign up"}
+                </Button>
+                <p className="text-sm text-center text-gray-600">
+                Already have an account?{" "}
+                <Link href="/login" className="text-primary hover:underline">
+                  Log in
+                </Link>
+                </p>
+              </CardFooter>
               </Form>
             )}
-          </Formik>
+            </Formik>
         </Card>
       </div>
     </div>
