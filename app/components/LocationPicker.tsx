@@ -49,7 +49,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor="place">Event Location*</Label>
+      <Label htmlFor="place" className="font-bold">Event Location*</Label>
       {/* @ts-ignore */}
       <SearchBox
         value={selectedPlace}

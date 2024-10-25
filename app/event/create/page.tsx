@@ -31,11 +31,7 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import type { tags } from "@/app/types/d";
-import {
-  CalendarIcon,
-  ChevronsUpDown,
-  Check,
-} from "lucide-react";
+import { CalendarIcon, ChevronsUpDown, Check } from "lucide-react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 
 import {
@@ -158,13 +154,12 @@ const editorConfig = {
   },
 };
 
-
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
   timestamp: Yup.date().required("Date and time are required"),
   place: Yup.string().required("Location is required"),
   overview: Yup.string().required("Overview is required"),
-  tags: Yup.array().of(Yup.string()).required("At least one tag is required"),
+  tags: Yup.array().of(Yup.string()).required("Tags are required").min(1, "Select at least 1"),
   capacity: Yup.number().when("unlimited", {
     is: false,
     then: (schema) =>
@@ -178,8 +173,24 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function CreateEventPage() {
+  const initialValues = {
+    title: "Event Title",
+    timestamp: new Date(),
+    place: "",
+    lat: 0,
+    long: 0,
+    overview: "",
+    tags: [] as string[],
+    capacity: 1,
+    unlimited: false,
+    price: 0,
+    submitType: "",
+  };
+
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [selectedTags, setSelectedTags] = useState<tags[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    initialValues.tags
+  );
 
   const { toast } = useToast();
   const { data: session, status } = useSession();
@@ -195,20 +206,6 @@ export default function CreateEventPage() {
       router.push("/login");
     }
   }, [status, router]);
-
-  const initialValues = {
-    title: "Event Title",
-    timestamp: new Date(),
-    place: "",
-    lat: 0,
-    long: 0,
-    overview: "",
-    tags: [],
-    capacity: 1,
-    unlimited: false,
-    price: 0,
-    submitType: "",
-  };
 
   const handleSubmit = async (
     values: { submitType: any; thumbnail?: string; price: number },
@@ -260,7 +257,6 @@ export default function CreateEventPage() {
     }
   };
 
-
   return (
     <Layout>
       <div className="container mx-auto p-6">
@@ -285,7 +281,9 @@ export default function CreateEventPage() {
               <h1 className="text-3xl font-bold mb-6">{values.title}</h1>
               {/* Event Title */}
               <div>
-                <Label htmlFor="title">Event Title*</Label>
+                <Label htmlFor="title" className="font-bold">
+                  Event Title*
+                </Label>
                 <Field name="title" as={Input} id="title" />
                 <ErrorMessage
                   name="title"
@@ -311,7 +309,7 @@ export default function CreateEventPage() {
 
               {/* Event Date and Time */}
               <div className="flex flex-col gap-2">
-                <Label>Event Date and Time*</Label>
+                <Label className="font-bold">Event Date and Time*</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline">
@@ -361,7 +359,9 @@ export default function CreateEventPage() {
 
               {/* Event Overview */}
               <div>
-                <Label htmlFor="overview">Event Overview*</Label>
+                <Label htmlFor="overview" className="font-bold">
+                  Event Overview*
+                </Label>
                 <CKEditor
                   editor={ClassicEditor}
                   config={editorConfig}
@@ -380,7 +380,9 @@ export default function CreateEventPage() {
 
               {/* Event Tags - Custom Combobox using Popover and Command */}
               <div>
-                <Label htmlFor="tags">Event Tags*</Label>
+                <Label htmlFor="tags" className="font-bold">
+                  Event Tags*
+                </Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -405,11 +407,14 @@ export default function CreateEventPage() {
                             <CommandItem
                               key={tag.value}
                               onSelect={() => {
-                                setSelectedTags((prev) =>
-                                  prev.includes(tag.value)
-                                    ? prev.filter((t) => t !== tag.value)
-                                    : [...prev, tag.value]
+                                const isSelected = values.tags.includes(
+                                  tag.value
                                 );
+                                const newTags = isSelected
+                                  ? values.tags.filter((t) => t !== tag.value)
+                                  : [...values.tags, tag.value];
+                                setFieldValue("tags", newTags);
+                                setSelectedTags(newTags);
                               }}
                             >
                               <Check
@@ -475,7 +480,9 @@ export default function CreateEventPage() {
               {/* Event Price */}
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2 items-center">
-                  <Label htmlFor="price">Event Price ($)*</Label>
+                  <Label htmlFor="price" className="font-bold">
+                    Event Price ($)*
+                  </Label>
                   <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
                     0 for free
                   </kbd>
