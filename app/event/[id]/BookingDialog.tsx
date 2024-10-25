@@ -156,7 +156,7 @@ export default function BookingDialog({
         <Button
           onClick={() => setIsOpen(true)}
           className="w-full"
-          disabled={eventDetails?.remaining === 0}
+          disabled={eventDetails?.remaining === 0 && !eventDetails?.unlimited}
         >
           {ticketButtonPhrase()}
         </Button>

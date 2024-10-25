@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Layout from "@/app/components/Layout";
 import Admin from './Admin';
 import Organizer from './Organizer';
@@ -10,10 +12,10 @@ const DashboardPage = () => {
     const user = { role: 'admin' };
 
     return (
-        <Layout>
+        <>
             {user.role === 'admin' && <Admin />}
             {user.role === 'organizer' && <Organizer />}
-        </Layout>
+        </>
     );
 };
 

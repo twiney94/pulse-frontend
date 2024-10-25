@@ -117,12 +117,12 @@ export default function AdminDashboard() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton size="lg">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <Settings className="size-4" />
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-primary-foreground">
+                    <img src="/pulse-mini.svg" alt="Logo" className="h-6 w-6" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">Admin Dashboard</span>
-                    <span className="text-xs">Manage your platform</span>
+                    <span className="text-xs">Back to Home</span>
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
