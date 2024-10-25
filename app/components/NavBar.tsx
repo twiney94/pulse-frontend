@@ -39,7 +39,7 @@ export default function NavBar() {
           <CalendarPlus className="h-4 w-4" />
           <span>Create Event</span>
         </Button>
-        <Button variant="outline" className="hidden sm:flex items-center gap-2">
+        <Button variant="outline" className="hidden sm:flex items-center gap-2" onClick={() => router.push("/account/tickets")}>
           <Ticket className="h-4 w-4" />
           <span>Tickets</span>
         </Button>
