@@ -17,6 +17,7 @@ import { convertCentsToDollars } from "@/app/utils/pricing";
 import MapBox from "@/app/components/MapBox";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import TagOptions from "@/app/components/TagOptions";
 interface EventDetails {
   "@context": string;
   "@id": string;
@@ -250,9 +251,9 @@ export default function EventDetailsPage() {
                 <Skeleton className="mb-6 h-8 w-full" />
               ) : (
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {eventDetails?.tags.map((tag) => (
-                    <Badge key={tag}>{tag}</Badge>
-                  ))}
+                  {eventDetails?.tags && (
+                    <TagOptions tags={eventDetails?.tags} />
+                  )}
                 </div>
               )}
             </div>

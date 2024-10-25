@@ -71,8 +71,6 @@ import { Badge } from "@/components/ui/badge";
 import { httpRequest } from "@/app/utils/http";
 import { convertDollarsToCents } from "@/app/utils/pricing";
 
-
-
 const editorConfig = {
   toolbar: {
     items: [
@@ -159,6 +157,7 @@ const editorConfig = {
     ],
   },
 };
+
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -260,6 +259,7 @@ export default function CreateEventPage() {
       setSubmitting(false);
     }
   };
+
 
   return (
     <Layout>
