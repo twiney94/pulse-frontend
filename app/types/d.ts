@@ -77,3 +77,23 @@ export interface Organizer {
   roles: string[];
   status: string;
 }
+export interface Ticket {
+  "@id": string;
+  "@type": string;
+  id: string;
+  units: number;
+  status: string;
+  event: {
+    "@id": string;
+    "@type": string;
+    id: string;
+    title: string;
+    timestamp: string;
+    place: string;
+    lat: number;
+    long: number;
+    tags: [string];
+    price: number;
+    thumbnail?: string;
+  };
+}

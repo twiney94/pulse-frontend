@@ -112,8 +112,6 @@ export default function BookingDialog({
         "POST",
         {
           units: values.ticketQuantity,
-          status: "confirmed",
-          buyer: `/users/${userId}`,
           event: `${eventDetails.id}`,
         },
         {

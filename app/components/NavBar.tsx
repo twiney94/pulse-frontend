@@ -16,6 +16,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import EventSearchBar from "@/app/components/EventSearchBar";
+import { UserProfileUpdateDialog } from "./UserProfile";
 
 export function Logo() {
   return <Image src={pulseLogo} alt="Pulse" className="object-cover" />;
@@ -35,11 +36,19 @@ export default function NavBar() {
       </Link>
       <EventSearchBar />
       <div className="flex items-center gap-4">
-        <Button variant="outline" className="hidden sm:flex items-center gap-2" onClick={() => router.push("/event/create")}>
+        <Button
+          variant="outline"
+          className="hidden sm:flex items-center gap-2"
+          onClick={() => router.push("/event/create")}
+        >
           <CalendarPlus className="h-4 w-4" />
           <span>Create Event</span>
         </Button>
-        <Button variant="outline" className="hidden sm:flex items-center gap-2" onClick={() => router.push("/account/tickets")}>
+        <Button
+          variant="outline"
+          className="hidden sm:flex items-center gap-2"
+          onClick={() => router.push("/account/tickets")}
+        >
           <Ticket className="h-4 w-4" />
           <span>Tickets</span>
         </Button>
@@ -55,7 +64,9 @@ export default function NavBar() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>
+              <UserProfileUpdateDialog />
+            </DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
