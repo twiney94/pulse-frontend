@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -11,12 +12,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Layout from "../components/Layout";
 import MapBox from "../components/MapBox";
 import { useEffect, useState } from "react";
-import { Badge } from "../components/Badge";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { httpRequest } from "../utils/http";
 import type { Event, Location } from "@/app/types/d";
 import LoadingScreen from "../components/LoadingScreen";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { convertCentsToDollars } from "../utils/pricing";
+import { convertDate } from "../utils/datetime";
+import TagOptions from "../components/TagOptions";
 
 export default function SearchPage() {
   const [hoveredLocation, setHoveredLocation] = useState<Location | null>(null);
@@ -97,7 +101,9 @@ export default function SearchPage() {
                       <div className="flex-grow">
                         <CardHeader>
                           <CardTitle>{result.title}</CardTitle>
-                          <CardDescription>{result.overview}</CardDescription>
+                          <CardDescription>
+                            {convertDate(result.timestamp, "short")}
+                          </CardDescription>
                         </CardHeader>
                         <CardContent>
                           {result.price === 0 ? (
@@ -106,17 +112,26 @@ export default function SearchPage() {
                             </Badge>
                           ) : (
                             <Badge className="bg-background border-primary text-primary">
-                              {new Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                                minimumFractionDigits: 2,
-                              }).format(result.price / 100)}
+                              {convertCentsToDollars(result.price)}
                             </Badge>
                           )}
                         </CardContent>
+                        {result.tags && (
+                          <CardFooter>
+                            <CardDescription>
+                              <TagOptions tags={result.tags} />
+                            </CardDescription>
+                          </CardFooter>
+                        )}
                       </div>
                       <div className="w-24 bg-muted flex items-center justify-center">
-                        <span className="text-muted-foreground">Image</span>
+                        {(result.thumbnail && (
+                          <img
+                            src={result.thumbnail}
+                            alt={result.title}
+                            className="object-cover h-full rounded-lg"
+                          />
+                        )) || <div className="w-24 h-full rounded-lg bg-background" />}
                       </div>
                     </Card>
                   </Link>

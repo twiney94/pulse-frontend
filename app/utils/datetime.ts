@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from "moment";
 
 /**
  * Convert a date string (e.g., "2024-05-15T09:00:00+00:00") to a human-readable format
@@ -9,7 +9,7 @@ import moment from 'moment';
 const convertDate = (
   date: string,
   desiredFormat: "long" | "short" = "long"
-): string | { date: string; time: string } => {
+): typeof desiredFormat extends "long" ? { date: string; time: string } : string => {
   const dateObj = moment(date); // Parse the date string using moment
 
   if (desiredFormat === "long") {
