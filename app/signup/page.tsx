@@ -41,12 +41,12 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (values: { email: string; password: string }) => {
+  const handleSubmit = async (values: { email: string; password: string; first_name: string; last_name: string }) => {
     setIsLoading(true);
     setError("");
 
     try {
-      await httpRequest("/auth/register", "POST", { email: values.email, password: values.password });
+      await httpRequest("/auth/register", "POST", { email: values.email, password: values.password, firstName: values.first_name, lastName: values.last_name });
 
       router.push("/login");
     } catch (error: any) {
