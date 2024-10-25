@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/legacy/image";
-import { CalendarIcon, MapPinIcon, UserIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  FileText,
+  Flag,
+  MapPinIcon,
+  UserIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,11 +92,21 @@ export default function EventDetailsPage() {
           <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2">
               {/* Event Date and Title */}
-              <p className="mb-2 text-sm text-muted-foreground">
-                {eventDetails?.timestamp && (
-                  <>{convertDate(eventDetails.timestamp, "short")}</>
-                )}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="mb-2 text-sm text-muted-foreground">
+                  {eventDetails?.timestamp && (
+                    <>{convertDate(eventDetails.timestamp, "short")}</>
+                  )}
+                </p>
+                {session?.user &&
+                  session.user.email === eventDetails?.organizer.email && (
+                    <Badge variant="secondary">Your event</Badge>
+                  )}
+                <Button variant="ghost">
+                  <Flag className="mr-2 h-4 w-4" />
+                  Report
+                </Button>
+              </div>
               <h1 className="mb-6 text-4xl font-bold">{eventDetails?.title}</h1>
 
               {/* Organizer Info */}
@@ -195,15 +211,17 @@ export default function EventDetailsPage() {
                       ? "Free"
                       : convertCentsToDollars(eventDetails?.price || 0)}
                   </p>
-                  {eventDetails && (
-                    session ? (
+                  {eventDetails &&
+                    (session ? (
                       <BookingDialog eventDetails={eventDetails} />
                     ) : (
-                      <Button className="w-full" onClick={() => router.push("/login")}>
+                      <Button
+                        className="w-full"
+                        onClick={() => router.push("/login")}
+                      >
                         Login to book
                       </Button>
-                    )
-                  )}
+                    ))}
                 </CardContent>
               </Card>
             </div>

@@ -1,10 +1,41 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, MapPin } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, MapPin } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
-export default function EventSearchBar() {
+export const EventSearchBar = () => {
+  const router = useRouter();
+  const params = useSearchParams();
+  const [event, setEvent] = useState(params.get("title") || "");
+  const [location, setLocation] = useState(params.get("place") || "");
+
+  useEffect(() => {
+    const fetchLocation = () => {
+      if (navigator.geolocation && !location) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const { latitude, longitude } = position.coords;
+          const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${longitude}&latitude=${latitude}&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`;
+          fetch(url, {
+            method: "GET",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              setLocation(data.features[0].properties.context.place.name);
+            });
+        });
+      }
+    };
+
+    fetchLocation();
+  }, []);
+
   const handleSearch = () => {
-    window.location.href = "/search";
+    const queryParams = new URLSearchParams();
+    if (location) queryParams.append("place", location);
+    if (event) queryParams.append("title", event);
+    router.push(`/search?${queryParams.toString()}`);
   };
 
   return (
@@ -13,7 +44,10 @@ export default function EventSearchBar() {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <Input
           type="text"
+          value={event}
           placeholder="Search events"
+          onChange={(e) => setEvent(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           className="w-full rounded-l-md border-0 pl-9 focus-visible:ring-0"
         />
       </div>
@@ -22,18 +56,23 @@ export default function EventSearchBar() {
         <Input
           type="text"
           placeholder="Location"
+          value={location}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          onChange={(e) => setLocation(e.target.value)}
           className="w-full rounded-none border-0 border-l border-gray-200 pl-9 focus-visible:ring-0"
         />
       </div>
       <Button
-        type="button" 
-        size="icon" 
-        className="h-10 w-10 shrink-0 rounded-r-md bg-red-500 hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+        type="button"
+        size="icon"
+        className="h-10 w-10 shrink-0 rounded-r-md bg-gradient-to-br from-red-500 to-blue-500 hover:from-blue-500 hover:to-green-500 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
         onClick={handleSearch}
       >
         <Search className="h-4 w-4" />
         <span className="sr-only">Search</span>
       </Button>
     </div>
-  )
-}
+  );
+};
+
+export default EventSearchBar;

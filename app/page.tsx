@@ -14,18 +14,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Layout from "./components/Layout";
+import { tagOptions } from "./components/TagOptions";
+import React from "react";
 
 export function Logo() {
   return <Image src={pulseLogo} alt="Pulse" className="object-cover" />;
 }
-
-const categories = [
-  { name: "Music", icon: Music },
-  { name: "Movies", icon: Film },
-  { name: "Food", icon: Utensils },
-  { name: "Art", icon: Palette },
-  { name: "Nightlife", icon: Coffee },
-];
 
 const accordionImages = [
   { src: "/event1.jpg", alt: "Event 1", title: "Music Festival" },
@@ -92,45 +86,20 @@ export default function Home() {
         <div className="mx-auto w-full max-w-6xl">
           <ImageAccordion />
           <div className="mt-8 flex justify-center space-x-4">
-            {categories.map((category) => (
-              <div key={category.name} className="flex flex-col items-center">
+            {tagOptions.map((tag) => (
+              <div key={tag.label} className="flex flex-col items-center">
                 <Button
                   variant="outline"
                   size="icon"
                   className="h-16 w-16 rounded-full"
                 >
-                  <category.icon className="h-8 w-8" />
-                  <span className="sr-only">{category.name}</span>
+                  {React.cloneElement(tag.icon, { className: "h-6 w-6" })}
+                  <span className="sr-only">{tag.label}</span>
                 </Button>
                 <span className="mt-2 text-sm font-medium">
-                  {category.name}
+                  {tag.label}
                 </span>
               </div>
-            ))}
-          </div>
-          <h2 className="mt-12 mb-6 text-2xl font-bold">Trending Events</h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {trendingEvents.map((event, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader>
-                  <Image
-                    src={event.image}
-                    alt={event.title}
-                    className="h-32 w-full object-cover"
-                    width={300}
-                    height={200}
-                  />
-                </CardHeader>
-                <CardContent>
-                  <CardTitle>{event.title}</CardTitle>
-                  <CardDescription>{event.description}</CardDescription>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="default" className="w-full">
-                    View Details
-                  </Button>
-                </CardFooter>
-              </Card>
             ))}
           </div>
         </div>
