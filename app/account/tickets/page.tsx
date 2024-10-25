@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -17,6 +17,7 @@ import Image from "next/image";
 import Layout from "@/app/components/Layout";
 import QRCodeDialog from "./QRCode";
 import Cancel from "./Cancel";
+import { httpRequest } from "@/app/utils/http";
 
 const mockTickets = [
   {
@@ -54,6 +55,33 @@ const mockTickets = [
 export default function MyTicketsPage() {
   const [tickets, setTickets] = useState(mockTickets);
   const [showQRCode, setShowQRCode] = useState(false);
+
+  // FIXME: Add booking informations on the tickets route
+  // useEffect(() => {
+  //   const fetchTickets = async () => {
+  //     const response = await httpRequest("/bookings");
+  //     const data = response as { "hydra:member": any[] };
+  //     if (data["hydra:member"]) {
+  //       setTickets(data["hydra:member"]);
+  //     } else {
+  //       setTickets([]);
+  //     }
+  //   };
+
+  //   fetchTickets();
+  // }, []);
+
+  if (mockTickets.length === 0) {
+    return (
+      <Layout>
+        <div className="text-center py-12">
+          <p className="text-xl text-gray-500">
+            You don't have any tickets yet.
+          </p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

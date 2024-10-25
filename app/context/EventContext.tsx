@@ -1,18 +1,16 @@
-import { createContext, useContext, useState, Dispatch, SetStateAction, ReactNode } from "react";
+// /context/EventContext.tsx
+import { createContext, useContext, useState, ReactNode } from "react";
+import type { EventDetails } from "@/app/types/d";
 
-interface EventContextType {
-  eventDetails: any;
-  setEventDetails: Dispatch<SetStateAction<any>>;
+interface EventContextProps {
+  eventDetails: EventDetails | null;
+  setEventDetails: (details: EventDetails | null) => void;
 }
 
-const EventContext = createContext<EventContextType | null>(null);
+const EventContext = createContext<EventContextProps | undefined>(undefined);
 
-interface EventProviderProps {
-  children: ReactNode;
-}
-
-export const EventProvider = ({ children }: EventProviderProps) => {
-  const [eventDetails, setEventDetails] = useState(null);
+export const EventProvider = ({ children }: { children: ReactNode }) => {
+  const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
 
   return (
     <EventContext.Provider value={{ eventDetails, setEventDetails }}>
@@ -21,4 +19,10 @@ export const EventProvider = ({ children }: EventProviderProps) => {
   );
 };
 
-export const useEvent = () => useContext(EventContext);
+export const useEventContext = () => {
+  const context = useContext(EventContext);
+  if (!context) {
+    throw new Error("useEventContext must be used within an EventProvider");
+  }
+  return context;
+};

@@ -17,29 +17,8 @@ import MapBox from "@/app/components/MapBox";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import TagOptions from "@/app/components/TagOptions";
-
-interface EventDetails {
-  "@context": string;
-  "@id": string;
-  "@type": string;
-  id: string;
-  thumbnail: string;
-  title: string;
-  timestamp: string;
-  place: string;
-  lat: number;
-  long: number;
-  overview: string;
-  tags: [string];
-  status: string;
-  capacity: number;
-  remaining: number;
-  unlimited: boolean;
-  price: number;
-  organizer: string;
-  bookings: string[];
-  reports: string[];
-}
+import type { EventDetails } from "@/app/types/d";
+import BookingDialog from "./BookingDialog";
 
 export default function EventDetailsPage() {
   const { data: session } = useSession();
@@ -47,7 +26,6 @@ export default function EventDetailsPage() {
   const [showMap, setShowMap] = useState(false);
   const { id } = useParams();
   const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
-
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -65,14 +43,8 @@ export default function EventDetailsPage() {
 
   const handleTicketPurchase = () => {
     if (session) {
-      router.push(`/event/${id}/book`, {
-        // TODO: Does this work?
-        state: {
-          title: eventDetails?.title,
-          price: eventDetails?.price,
-          place: eventDetails?.place,
-        },
-      });
+      setEventDetails(eventDetails);
+      router.push(`/event/${id}/book`);
     } else {
       router.push("/login");
     }
@@ -82,22 +54,6 @@ export default function EventDetailsPage() {
     const price = convertCentsToDollars(eventDetails?.price ?? 0);
     if (price === "$0.00") {
       return true;
-    }
-  };
-
-  const ticketButtonPhrase = () => {
-    if (eventDetails?.unlimited) {
-      if (eventDetails?.price === 0) {
-        return "Get Ticket";
-      }
-      return "Buy Tickets";
-    } else if ((eventDetails?.remaining ?? 0) > 0) {
-      if (eventDetails?.price === 0) {
-        return "Get Ticket for Free";
-      }
-      return "Buy Tickets";
-    } else {
-      return "Sold Out";
     }
   };
 
@@ -146,7 +102,10 @@ export default function EventDetailsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>{eventDetails?.organizer}</p>
+                  <a href={`mailto:${eventDetails?.organizer.email}`}>
+                    {" "}
+                    {eventDetails?.organizer.email}
+                  </a>
                 </CardContent>
               </Card>
 
@@ -236,9 +195,9 @@ export default function EventDetailsPage() {
                       ? "Free"
                       : convertCentsToDollars(eventDetails?.price || 0)}
                   </p>
-                  <Button className="w-full" onClick={handleTicketPurchase}>
-                    {ticketButtonPhrase()}
-                  </Button>
+                  {eventDetails && (
+                    <BookingDialog eventDetails={eventDetails} />
+                  )}
                 </CardContent>
               </Card>
             </div>

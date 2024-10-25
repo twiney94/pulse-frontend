@@ -9,7 +9,7 @@ import moment from "moment";
 const convertDate = (
   date: string,
   desiredFormat: "long" | "short" = "long"
-): typeof desiredFormat extends "long" ? { date: string; time: string } : string => {
+): { date: string; time: string } | string => {
   const dateObj = moment(date); // Parse the date string using moment
 
   if (desiredFormat === "long") {
