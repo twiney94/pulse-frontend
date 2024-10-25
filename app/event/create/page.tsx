@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import Layout from "@/app/components/Layout";
 import LocationPicker from "@/app/components/LocationPicker";
 import { getSession, useSession } from "next-auth/react";
@@ -191,6 +191,7 @@ export default function CreateEventPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>(
     initialValues.tags
   );
+  const [ isSubmitting, setIsSubmitting ] = useState(false);
 
   const { toast } = useToast();
   const { data: session, status } = useSession();
@@ -212,6 +213,7 @@ export default function CreateEventPage() {
     { setSubmitting }: any
   ) => {
     try {
+      setIsSubmitting(true);
       if (thumbnail) {
         values.thumbnail = await uploadImage(thumbnail);
       }
@@ -237,9 +239,11 @@ export default function CreateEventPage() {
       );
 
       if (!response) {
+        setIsSubmitting(false);
         throw new Error("Failed to create event");
       }
 
+      setIsSubmitting(false);
       toast({
         title: "Event created",
         description: "Your event has been successfully created",
@@ -253,7 +257,7 @@ export default function CreateEventPage() {
         variant: "destructive",
       });
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -515,14 +519,14 @@ export default function CreateEventPage() {
                 <Button
                   type="submit"
                   variant="ghost"
-                  disabled={!isValid || !dirty}
+                  disabled={!isValid || !dirty || isSubmitting}
                   onClick={() => setFieldValue("submitType", "draft")}
                 >
                   Save as Draft
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!isValid || !dirty}
+                  disabled={!isValid || !dirty || isSubmitting}
                   onClick={() => setFieldValue("submitType", "publish")}
                 >
                   Save and Publish

@@ -46,8 +46,8 @@ export default function EventDetailsPage() {
   const router = useRouter();
   const [showMap, setShowMap] = useState(false);
   const { id } = useParams();
+  const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
 
-  const [eventDetails, setEventDetails] = useState<EventDetails>();
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -65,7 +65,14 @@ export default function EventDetailsPage() {
 
   const handleTicketPurchase = () => {
     if (session) {
-      router.push(`/event/${id}/book`);
+      router.push(`/event/${id}/book`, {
+        // TODO: Does this work?
+        state: {
+          title: eventDetails?.title,
+          price: eventDetails?.price,
+          place: eventDetails?.place,
+        },
+      });
     } else {
       router.push("/login");
     }

@@ -15,8 +15,9 @@ import { Calendar, MapPin, Clock, User } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
 import Layout from "@/app/components/Layout";
+import QRCodeDialog from "./QRCode";
+import Cancel from "./Cancel";
 
-// Mock data for tickets
 const mockTickets = [
   {
     id: "1",
@@ -24,9 +25,9 @@ const mockTickets = [
     date: new Date("2023-07-15"),
     time: "14:00",
     location: "Central Park, New York",
-    ticketType: "VIP",
+    numberOfTickets: 2,
     price: 150,
-    imageUrl: "/placeholder.svg?height=100&width=200",
+    imageUrl: "/event1.jpg",
   },
   {
     id: "2",
@@ -34,9 +35,9 @@ const mockTickets = [
     date: new Date("2023-08-22"),
     time: "09:00",
     location: "Convention Center, San Francisco",
-    ticketType: "General Admission",
+    numberOfTickets: 1,
     price: 75,
-    imageUrl: "/placeholder.svg?height=100&width=200",
+    imageUrl: "/event2.jpg",
   },
   {
     id: "3",
@@ -44,14 +45,15 @@ const mockTickets = [
     date: new Date("2023-09-10"),
     time: "11:00",
     location: "Expo Hall, Chicago",
-    ticketType: "Early Bird",
+    numberOfTickets: 3,
     price: 50,
-    imageUrl: "/placeholder.svg?height=100&width=200",
+    imageUrl: "/event4.jpg",
   },
 ];
 
 export default function MyTicketsPage() {
   const [tickets, setTickets] = useState(mockTickets);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   return (
     <Layout>
@@ -59,18 +61,20 @@ export default function MyTicketsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tickets.map((ticket) => (
           <Card key={ticket.id} className="flex flex-col">
-            <CardHeader>
+            <CardHeader className="p-0 pb-4">
               <Image
                 src={ticket.imageUrl}
                 alt={ticket.eventName}
-                width={200}
-                height={100}
+                width={400}
+                height={200}
                 className="w-full h-32 object-cover rounded-t-lg"
               />
-              <CardTitle className="mt-4">{ticket.eventName}</CardTitle>
-              <CardDescription>
-                <Badge variant="secondary">{ticket.ticketType}</Badge>
-              </CardDescription>
+              <div className="flex flex-col px-4 gap-2">
+                <CardTitle className="mt-4">{ticket.eventName}</CardTitle>
+                <CardDescription>
+                  <Badge variant="default">tags</Badge>
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="space-y-2">
@@ -88,7 +92,10 @@ export default function MyTicketsPage() {
                 </div>
                 <div className="flex items-center">
                   <User className="w-4 h-4 mr-2" />
-                  <span>{ticket.ticketType}</span>
+                  <span>
+                    {ticket.numberOfTickets} person
+                    {ticket.numberOfTickets > 1 ? "s" : ""}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -96,7 +103,10 @@ export default function MyTicketsPage() {
               <span className="text-lg font-semibold">
                 ${ticket.price.toFixed(2)}
               </span>
-              <Button variant="outline">View Details</Button>
+              <div className="flex gap-2">
+                <Cancel />
+                <QRCodeDialog />
+              </div>
             </CardFooter>
           </Card>
         ))}

@@ -137,100 +137,110 @@ export default function BookingPage() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="cardNumber">Card Number</Label>
-                  <Field
-                    name="cardNumber"
-                    as={Input}
-                    placeholder="1234 5678 9012 3456"
-                  />
-                  <ErrorMessage
-                    name="cardNumber"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
+                {eventDetails?.price !== 0 && (
+                  <div>
+                    <div>
+                      <Label htmlFor="cardNumber">Card Number</Label>
+                      <Field
+                        name="cardNumber"
+                        as={Input}
+                        placeholder="1234 5678 9012 3456"
+                      />
+                      <ErrorMessage
+                        name="cardNumber"
+                        component="div"
+                        className="text-red-500 text-sm"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-1">
-                    <Label htmlFor="expirationMonth">Expiration Month</Label>
-                    <Field name="expirationMonth">
-                      {({ field }) => (
-                        <Select
-                          onValueChange={(value) =>
-                            setFieldValue("expirationMonth", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Month" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 12 }, (_, i) => i + 1).map(
-                              (month) => (
-                                <SelectItem
-                                  key={month}
-                                  value={month.toString().padStart(2, "0")}
-                                >
-                                  {month.toString().padStart(2, "0")}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </Field>
-                    <ErrorMessage
-                      name="expirationMonth"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="col-span-1">
+                        <Label htmlFor="expirationMonth">
+                          Expiration Month
+                        </Label>
+                        <Field name="expirationMonth">
+                          {({ field }) => (
+                            <Select
+                              onValueChange={(value) =>
+                                setFieldValue("expirationMonth", value)
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Month" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from(
+                                  { length: 12 },
+                                  (_, i) => i + 1
+                                ).map((month) => (
+                                  <SelectItem
+                                    key={month}
+                                    value={month.toString().padStart(2, "0")}
+                                  >
+                                    {month.toString().padStart(2, "0")}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </Field>
+                        <ErrorMessage
+                          name="expirationMonth"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        <Label htmlFor="expirationYear">Expiration Year</Label>
+                        <Field name="expirationYear">
+                          {({ field }) => (
+                            <Select
+                              onValueChange={(value) =>
+                                setFieldValue("expirationYear", value)
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Year" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from(
+                                  { length: 10 },
+                                  (_, i) => new Date().getFullYear() + i
+                                ).map((year) => (
+                                  <SelectItem
+                                    key={year}
+                                    value={year.toString()}
+                                  >
+                                    {year}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </Field>
+                        <ErrorMessage
+                          name="expirationYear"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        <Label htmlFor="cvv">CVV</Label>
+                        <Field
+                          name="cvv"
+                          as={Input}
+                          type="password"
+                          maxLength="4"
+                        />
+                        <ErrorMessage
+                          name="cvv"
+                          component="div"
+                          className="text-red-500 text-sm"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="col-span-1">
-                    <Label htmlFor="expirationYear">Expiration Year</Label>
-                    <Field name="expirationYear">
-                      {({ field }) => (
-                        <Select
-                          onValueChange={(value) =>
-                            setFieldValue("expirationYear", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Year" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from(
-                              { length: 10 },
-                              (_, i) => new Date().getFullYear() + i
-                            ).map((year) => (
-                              <SelectItem key={year} value={year.toString()}>
-                                {year}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </Field>
-                    <ErrorMessage
-                      name="expirationYear"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <Label htmlFor="cvv">CVV</Label>
-                    <Field
-                      name="cvv"
-                      as={Input}
-                      type="password"
-                      maxLength="4"
-                    />
-                    <ErrorMessage
-                      name="cvv"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-                </div>
+                )}
               </CardContent>
               <CardFooter>
                 <Button
