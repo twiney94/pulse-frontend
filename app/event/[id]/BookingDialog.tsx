@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
@@ -33,8 +33,8 @@ import { EventDetails } from "@/app/types/d";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { convertDate } from "@/app/utils/datetime";
-import { Router } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { convertCentsToDollars } from "@/app/utils/pricing";
 
 export default function BookingDialog({
   eventDetails,
@@ -46,27 +46,32 @@ export default function BookingDialog({
   const [error, setError] = useState(null);
   const { toast } = useToast();
   const { data: session, status } = useSession();
+  const [ticketQuantity, setTicketQuantity] = useState(1);
+  const [finalPrice, setFinalPrice] = useState(eventDetails?.price ?? 0);
   const router = useRouter();
 
   const initialValues = {
     ticketQuantity: 1,
-    fullName: "",
     cardNumber: "",
     expirationMonth: "",
     expirationYear: "",
     cvv: "",
   };
 
+  useEffect(() => {
+    setFinalPrice(ticketQuantity * eventDetails.price); // Calculate final price whenever ticket quantity changes
+  }, [ticketQuantity, eventDetails.price]);
+
   const validationSchema = Yup.object().shape({
     ticketQuantity: Yup.number()
       .required("Ticket quantity is required")
       .positive("Ticket quantity must be positive")
+      .max(
+        eventDetails?.remaining ?? 0,
+        `Only ${eventDetails?.remaining} tickets available`
+      )
       .integer("Ticket quantity must be a whole number"),
-    fullName: Yup.string().when([], {
-      is: () => eventDetails?.price !== 0,
-      then: (schema) => schema.required("Full name is required"),
-      otherwise: () => Yup.string(),
-    }),
+
     cardNumber: Yup.string().when([], {
       is: () => eventDetails?.price !== 0,
       then: (schema) =>
@@ -109,7 +114,7 @@ export default function BookingDialog({
           units: values.ticketQuantity,
           status: "confirmed",
           buyer: `/users/${userId}`,
-          event: `/events/${eventDetails.id}`,
+          event: `${eventDetails.id}`,
         },
         {
           "Content-Type": "application/ld+json",
@@ -150,11 +155,24 @@ export default function BookingDialog({
     typeof convertedDate === "string" ? convertedDate : convertedDate.date;
   const time = typeof convertedDate === "string" ? "" : convertedDate.time;
 
+  const handleButtonClick = () => {
+    if (status === "authenticated") {
+      setIsOpen(true);
+    } else {
+      toast({
+        title: "Authentication Required",
+        description: "You must authenticate to book tickets",
+        variant: "destructive",
+      });
+      router.push("/login");
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          onClick={() => setIsOpen(true)}
+          onClick={handleButtonClick}
           className="w-full"
           disabled={eventDetails?.remaining === 0 && !eventDetails?.unlimited}
         >
@@ -190,6 +208,11 @@ export default function BookingDialog({
                       as={Input}
                       type="number"
                       min="1"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const quantity = parseInt(e.target.value, 10);
+                        setTicketQuantity(parseInt(e.target.value));
+                        setFieldValue("ticketQuantity", quantity);
+                      }}
                     />
                     <ErrorMessage
                       name="ticketQuantity"
@@ -311,8 +334,9 @@ export default function BookingDialog({
                     className="w-full"
                     disabled={isSubmitting || Object.keys(errors).length > 0}
                   >
-                    {Object.keys(errors).length > 0 ? "Fix Errors" : ""}
                     {isSubmitting ? "Processing..." : "Complete Booking"}
+                    {finalPrice > 0 &&
+                      ` - ${convertCentsToDollars(finalPrice)}`}
                   </Button>
                 </CardFooter>
               </Form>

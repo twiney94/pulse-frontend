@@ -196,7 +196,13 @@ export default function EventDetailsPage() {
                       : convertCentsToDollars(eventDetails?.price || 0)}
                   </p>
                   {eventDetails && (
-                    <BookingDialog eventDetails={eventDetails} />
+                    session ? (
+                      <BookingDialog eventDetails={eventDetails} />
+                    ) : (
+                      <Button className="w-full" onClick={() => router.push("/login")}>
+                        Login to book
+                      </Button>
+                    )
                   )}
                 </CardContent>
               </Card>
