@@ -63,7 +63,7 @@ export default function Home() {
                 variant="outline"
                 size="icon"
                 className="h-16 w-16 rounded-full"
-                onClick={() => router.push(`/search?tags=${tag.value}`)}
+                onClick={() => router.push(`/search?tags[]=${tag.value}`)}
               >
                 {React.cloneElement(tag.icon, { className: "h-6 w-6" })}
                 <span className="sr-only">{tag.label}</span>

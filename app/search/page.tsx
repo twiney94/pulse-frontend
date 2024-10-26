@@ -34,10 +34,13 @@ export default function SearchPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
+        console.log(params.toString());
         const response = await httpRequest<Event[]>(
           `/events?${params.toString()}`
         );
-        const results: Event[] = (response as unknown as { "hydra:member": Event[] })["hydra:member"];
+        const results: Event[] = (
+          response as unknown as { "hydra:member": Event[] }
+        )["hydra:member"];
         setSearchResults(results);
         setLoading(false);
       } catch (error: any) {
@@ -65,10 +68,14 @@ export default function SearchPage() {
       <ToggleGroup
         type="multiple"
         className="mb-8"
-        defaultValue={params.get("tags")?.split(",")}
-        onValueChange={(value) => {
+        defaultValue={params.getAll("tags[]")}
+        onValueChange={(value: string[]) => {
           const newParams = new URLSearchParams(params.toString());
-          newParams.set("tags", value.join(","));
+
+          newParams.delete("tags[]");
+
+          value.forEach((tag) => newParams.append("tags[]", tag));
+
           window.history.replaceState(null, "", `?${newParams.toString()}`);
         }}
       >
