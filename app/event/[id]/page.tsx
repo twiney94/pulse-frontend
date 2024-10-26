@@ -5,7 +5,7 @@ import { CalendarIcon, Flag, MapPinIcon, UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Layout from "@/app/components/Layout";
 import { useEffect, useState } from "react";
 import { httpRequest } from "@/app/utils/http";
@@ -15,10 +15,11 @@ import { convertDate } from "@/app/utils/datetime";
 import { convertCentsToDollars } from "@/app/utils/pricing";
 import MapBox from "@/app/components/MapBox";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import TagOptions from "@/app/components/TagOptions";
 import type { EventDetails } from "@/app/types/d";
 import BookingDialog from "./BookingDialog";
+import { comment } from "postcss";
+import { useToast } from "@/hooks/use-toast";
 
 export default function EventDetailsPage() {
   const { data: session } = useSession();
@@ -27,6 +28,8 @@ export default function EventDetailsPage() {
   const { id } = useParams();
   const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
   const [error, setError] = useState(null);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -41,11 +44,37 @@ export default function EventDetailsPage() {
     fetchEventDetails();
   }, [id]);
 
+  const handleReport = async () => {
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      setReportError(null);
+      await httpRequest(
+        "/reports",
+        "POST",
+        {
+          status: "pending",
+          comment: `Reported by ${session.user.email}`,
+        },
+        { "Content-Type": "application/ld+json" }
+      );
+      toast({
+        title: "Reported",
+        description:
+          "This event has been reported. Thanks you for your feedback.",
+        variant: "default",
+      });
+    } catch (error: any) {
+      setReportError("Failed to report this event. Please try again later.");
+    }
+  };
+
   const isItFree = () => {
     const price = convertCentsToDollars(eventDetails?.price ?? 0);
-    if (price === "$0.00") {
-      return true;
-    }
+    return price === "$0.00";
   };
 
   return (
@@ -59,7 +88,6 @@ export default function EventDetailsPage() {
       )}
 
       <div className="min-h-screen bg-background">
-        {/* Hero Image */}
         <div className="relative h-[300px] md:h-[400px]">
           <Image
             src={
@@ -76,7 +104,6 @@ export default function EventDetailsPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2">
-              {/* Event Date and Title */}
               <div className="flex items-center justify-between">
                 <p className="mb-2 text-sm text-muted-foreground">
                   {eventDetails?.timestamp && (
@@ -87,11 +114,17 @@ export default function EventDetailsPage() {
                   session.user.email === eventDetails?.organizer.email && (
                     <Badge variant="secondary">Your event</Badge>
                   )}
-                <Button variant="ghost">
+                <Button variant="ghost" onClick={handleReport}>
                   <Flag className="mr-2 h-4 w-4" />
                   Report
                 </Button>
               </div>
+              {reportError && (
+                <Alert variant="destructive" className="mt-2">
+                  <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />
+                  <AlertDescription>{reportError}</AlertDescription>
+                </Alert>
+              )}
               <h1 className="mb-6 text-4xl font-bold">{eventDetails?.title}</h1>
 
               {/* Organizer Info */}
@@ -104,7 +137,6 @@ export default function EventDetailsPage() {
                 </CardHeader>
                 <CardContent>
                   <a href={`mailto:${eventDetails?.organizer.email}`}>
-                    {" "}
                     {eventDetails?.organizer.email}
                   </a>
                 </CardContent>
@@ -121,9 +153,7 @@ export default function EventDetailsPage() {
                 <CardContent>
                   {eventDetails?.timestamp && (
                     <>
-                      {/* @ts-ignore */}
                       <p>{convertDate(eventDetails.timestamp).date}</p>
-                      {/* @ts-ignore */}
                       <p>{convertDate(eventDetails.timestamp).time}</p>
                     </>
                   )}
