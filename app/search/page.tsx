@@ -21,17 +21,21 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { convertCentsToDollars } from "../utils/pricing";
 import { convertDate } from "../utils/datetime";
 import TagOptions from "../components/TagOptions";
+import { useSearchParams } from "next/navigation";
 
 export default function SearchPage() {
   const [hoveredLocation, setHoveredLocation] = useState<Location | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<Event[]>([]);
+  const params = useSearchParams();
+
+  // watch the params and if they change, refetch the events
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await httpRequest<Event[]>("/events");
+        const response = await httpRequest<Event[]>(`/events?${params.toString()}`);
         const results = response["hydra:member"];
         setSearchResults(results);
         setLoading(false);
@@ -43,7 +47,7 @@ export default function SearchPage() {
     };
 
     fetchEvents();
-  }, []);
+  }, [params.toString()]);
 
   const locations = searchResults.map((result) => ({
     lat: result.lat,

@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export const EventSearchBar = () => {
   const router = useRouter();
   const params = useSearchParams();
+  const pathname = usePathname();
   const [event, setEvent] = useState(params.get("title") || "");
   const [location, setLocation] = useState(params.get("place") || "");
 
@@ -35,6 +36,11 @@ export const EventSearchBar = () => {
     const queryParams = new URLSearchParams();
     if (location) queryParams.append("place", location);
     if (event) queryParams.append("title", event);
+    // if already on search page, just update the query params
+    if (pathname === "/search") {
+      router.replace(`/search?${queryParams.toString()}`);
+      return;
+    }
     router.push(`/search?${queryParams.toString()}`);
   };
 
