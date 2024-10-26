@@ -20,8 +20,9 @@ import LoadingScreen from "../components/LoadingScreen";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { convertCentsToDollars } from "../utils/pricing";
 import { convertDate } from "../utils/datetime";
-import TagOptions from "../components/TagOptions";
+import TagOptions, { tagOptions } from "../components/TagOptions";
 import { useSearchParams } from "next/navigation";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function SearchPage() {
   const [hoveredLocation, setHoveredLocation] = useState<Location | null>(null);
@@ -35,7 +36,9 @@ export default function SearchPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await httpRequest<Event[]>(`/events?${params.toString()}`);
+        const response = await httpRequest<Event[]>(
+          `/events?${params.toString()}`
+        );
         const results = response["hydra:member"];
         setSearchResults(results);
         setLoading(false);
@@ -61,6 +64,24 @@ export default function SearchPage() {
 
   return (
     <Layout>
+      <ToggleGroup
+        type="multiple"
+        className="mb-8"
+        defaultValue={params.get("tags")?.split(",")}
+        onValueChange={(value) => {
+          const newParams = new URLSearchParams(params.toString());
+          newParams.set("tags", value.join(","));
+          window.history.replaceState(null, "", `?${newParams.toString()}`);
+        }}
+      >
+        {/* activate those used in query params and if user clicks on one it should add it to query params, remove it if untoggle */}
+        {tagOptions.map((tag) => (
+          <ToggleGroupItem key={tag.value} value={tag.value}>
+            {tag.icon}
+            {tag.label}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
       {error && (
         <Alert variant="destructive" className="mb-4">
           <AlertTitle>Error</AlertTitle>
@@ -135,7 +156,9 @@ export default function SearchPage() {
                             alt={result.title}
                             className="object-cover h-full rounded-lg"
                           />
-                        )) || <div className="w-24 h-full rounded-lg bg-background" />}
+                        )) || (
+                          <div className="w-24 h-full rounded-lg bg-background" />
+                        )}
                       </div>
                     </Card>
                   </Link>

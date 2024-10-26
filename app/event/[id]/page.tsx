@@ -1,13 +1,7 @@
 "use client";
 
 import Image from "next/legacy/image";
-import {
-  CalendarIcon,
-  FileText,
-  Flag,
-  MapPinIcon,
-  UserIcon,
-} from "lucide-react";
+import { CalendarIcon, Flag, MapPinIcon, UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,15 +40,6 @@ export default function EventDetailsPage() {
 
     fetchEventDetails();
   }, [id]);
-
-  const handleTicketPurchase = () => {
-    if (session) {
-      setEventDetails(eventDetails);
-      router.push(`/event/${id}/book`);
-    } else {
-      router.push("/login");
-    }
-  };
 
   const isItFree = () => {
     const price = convertCentsToDollars(eventDetails?.price ?? 0);
@@ -136,7 +121,9 @@ export default function EventDetailsPage() {
                 <CardContent>
                   {eventDetails?.timestamp && (
                     <>
+                      {/* @ts-ignore */}
                       <p>{convertDate(eventDetails.timestamp).date}</p>
+                      {/* @ts-ignore */}
                       <p>{convertDate(eventDetails.timestamp).time}</p>
                     </>
                   )}
