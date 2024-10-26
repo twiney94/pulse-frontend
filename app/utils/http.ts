@@ -1,7 +1,7 @@
 import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 interface ExtendedSession extends Session {
   accessToken: string;

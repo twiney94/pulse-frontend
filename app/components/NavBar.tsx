@@ -16,7 +16,6 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import EventSearchBar from "@/app/components/EventSearchBar";
-import { UserProfileUpdateDialog } from "./UserProfile";
 
 export function Logo() {
   return <Image src={pulseLogo} alt="Pulse" className="object-cover" />;
@@ -64,8 +63,8 @@ export default function NavBar() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <UserProfileUpdateDialog />
+            <DropdownMenuItem onClick={() => router.push("/account")}>
+              My Profile
             </DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
