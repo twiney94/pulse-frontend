@@ -39,7 +39,7 @@ export default function SearchPage() {
         const response = await httpRequest<Event[]>(
           `/events?${params.toString()}`
         );
-        const results = response["hydra:member"];
+        const results: Event[] = (response as unknown as { "hydra:member": Event[] })["hydra:member"];
         setSearchResults(results);
         setLoading(false);
       } catch (error: any) {
@@ -126,6 +126,7 @@ export default function SearchPage() {
                         <CardHeader>
                           <CardTitle>{result.title}</CardTitle>
                           <CardDescription>
+                            {/* @ts-ignore */}
                             {convertDate(result.timestamp, "short")}
                           </CardDescription>
                         </CardHeader>
