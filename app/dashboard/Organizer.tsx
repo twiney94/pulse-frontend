@@ -190,18 +190,6 @@ export default function OrganizerDashboard() {
           <TabsContent value="all-events" className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">All Events</h2>
-              <div className="flex items-center space-x-2">
-                <Select>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date">Date</SelectItem>
-                    <SelectItem value="attendees">Attendees</SelectItem>
-                    <SelectItem value="name">Name</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
             <div className="rounded-md border">
               <Table>
@@ -235,42 +223,60 @@ export default function OrganizerDashboard() {
                           {event.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                changeEventStatus(
-                                  event.id,
-                                  event.status === "published"
-                                    ? "draft"
-                                    : "published"
-                                )
-                              }
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              {event.status === "published"
-                                ? "Unpublish"
-                                : "Publish"}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => cancelEvent(event.id)}
-                              className="text-red-600"
-                            >
-                              <Trash className="mr-2 h-4 w-4" />
-                              Cancel Event
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+                      {event.status !== "canceled" && (
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(`/event/${event.id}`)
+                                }
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                View
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(`/event/${event.id}/edit`)
+                                }
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  changeEventStatus(
+                                    event.id,
+                                    event.status === "published"
+                                      ? "draft"
+                                      : "published"
+                                  )
+                                }
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                {event.status === "published"
+                                  ? "Unpublish"
+                                  : "Publish"}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => cancelEvent(event.id)}
+                                className="text-red-600"
+                              >
+                                <Trash className="mr-2 h-4 w-4" />
+                                Cancel Event
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -299,7 +305,9 @@ export default function OrganizerDashboard() {
             )}
             {publishedEvents > 0 && (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={events}>
+                <BarChart
+                  data={events.filter((event) => event.status === "published")}
+                >
                   <XAxis dataKey="title" />
                   <YAxis />
                   <Bar dataKey="capacity" fill="#8884d8" />
@@ -356,35 +364,40 @@ export default function OrganizerDashboard() {
                           <TableCell>
                             <Badge variant="secondary">{event.status}</Badge>
                           </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <span className="sr-only">Open menu</span>
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    changeEventStatus(event.id, "published")
-                                  }
-                                >
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Publish
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => cancelEvent(event.id)}
-                                  className="text-red-600"
-                                >
-                                  <Trash className="mr-2 h-4 w-4" />
-                                  Cancel Event
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
+                          {event.status !== "canceled" && (
+                            <TableCell className="text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      changeEventStatus(event.id, "published")
+                                    }
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Publish
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => cancelEvent(event.id)}
+                                    className="text-red-600"
+                                  >
+                                    <Trash className="mr-2 h-4 w-4" />
+                                    Cancel Event
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))}
                   </TableBody>

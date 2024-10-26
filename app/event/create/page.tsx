@@ -66,6 +66,8 @@ import "ckeditor5/ckeditor5.css";
 import { Badge } from "@/components/ui/badge";
 import { httpRequest } from "@/app/utils/http";
 import { convertDollarsToCents } from "@/app/utils/pricing";
+import { Session } from "node:inspector/promises";
+import { decode } from "jsonwebtoken";
 
 const editorConfig = {
   toolbar: {
@@ -159,7 +161,10 @@ const validationSchema = Yup.object().shape({
   timestamp: Yup.date().required("Date and time are required"),
   place: Yup.string().required("Location is required"),
   overview: Yup.string().required("Overview is required"),
-  tags: Yup.array().of(Yup.string()).required("Tags are required").min(1, "Select at least 1"),
+  tags: Yup.array()
+    .of(Yup.string())
+    .required("Tags are required")
+    .min(1, "Select at least 1"),
   capacity: Yup.number().when("unlimited", {
     is: false,
     then: (schema) =>
@@ -191,14 +196,25 @@ export default function CreateEventPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>(
     initialValues.tags
   );
-  const [ isSubmitting, setIsSubmitting ] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { toast } = useToast();
   const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (status === "authenticated") {
+      const decoded = decode(session.user.token);
+      const roles = decoded?.roles;
+      console.log(roles);
+      console.log(
+        "🚀 ~ useEffect ~ !roles.includes:",
+        !roles.includes("ROLE_ORGANIZER")
+      );
+      if (!roles.includes("ROLE_ORGANIZER")) {
+        router.push("/login");
+      }
+    } else if (status === "unauthenticated") {
       toast({
         title: "Authentication Required",
         description: "You need to log in to access this page.",
