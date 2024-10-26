@@ -102,7 +102,6 @@ export function UpdateProfilePage() {
     try {
       const { newPassword, confirmNewPassword, password, ...profileData } =
         updatedData;
-      console.log("🚀 ~ onSubmit ~ updatedData:", updatedData);
       if (profileData.firstName || profileData.lastName) {
         await httpRequest(`/users/${userId}`, "PATCH", profileData, {
           "Content-Type": "application/merge-patch+json",

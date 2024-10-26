@@ -43,8 +43,6 @@ export default function ForgotPasswordPage() {
       ? JSON.parse(atob(validationToken))
       : "";
 
-    console.log("🚀 ~ handleSubmit ~ typeof decodedToken:", decodedToken);
-
     if (typeof decodedToken !== "object") return;
 
     const userId = decodedToken["userId"];

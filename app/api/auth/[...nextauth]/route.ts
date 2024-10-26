@@ -25,7 +25,6 @@ export const authOptions: NextAuthOptions = {
           const data = await res.json();
 
           const jwt = decode(data.token);
-          console.log("🚀 ~ authorize: ~ jwt:", jwt)
 
           if (!res.ok) {
             throw new Error(data.message || "Authentication failed");
@@ -55,7 +54,8 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
-      session.user = token.user;
+      session.user = token.user as typeof session.user;
+      session.user.role = token.user.role;
       return session;
     },
   },

@@ -22,7 +22,6 @@ export const EventSearchBar = () => {
           })
             .then((response) => response.json())
             .then((data) => {
-              console.log(data);
               setLocation(data.features[0].properties.context.place.name);
             });
         });

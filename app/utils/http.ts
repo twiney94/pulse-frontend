@@ -27,10 +27,6 @@ export async function httpRequest<T>(
   if (session && (session as ExtendedSession).accessToken) {
     const extendedSession = session as ExtendedSession;
     headers["Authorization"] = `Bearer ${extendedSession.accessToken}`;
-    console.log(
-      "🚀 ~ extendedSession.accessToken:",
-      extendedSession.accessToken
-    );
   }
   headers["Accept"] = "application/ld+json";
   const options: RequestInit = {

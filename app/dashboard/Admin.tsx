@@ -441,55 +441,6 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>User Validations</CardTitle>
-                  <CardDescription>Review and approve new user registrations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[100px]">User</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Registered</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">Alice Johnson</TableCell>
-                        <TableCell>alice@example.com</TableCell>
-                        <TableCell>Organizer</TableCell>
-                        <TableCell>2024-03-12</TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" className="mr-2">
-                            Approve
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            Reject
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Bob Smith</TableCell>
-                        <TableCell>bob@example.com</TableCell>
-                        <TableCell>Attendee</TableCell>
-                        <TableCell>2024-03-13</TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" className="mr-2">
-                            Approve
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            Reject
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
             </div>
           </main>
         </div>
