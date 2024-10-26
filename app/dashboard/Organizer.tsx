@@ -54,10 +54,25 @@ import { httpRequest } from "../utils/http";
 import { Event } from "../types/d";
 import { convertDate } from "../utils/datetime";
 import { useRouter } from "next/navigation";
+import { convertCentsToDollars } from "../utils/pricing";
+import { useSession } from "next-auth/react";
+
+interface kpis {
+  eventCount: number;
+  revenue: number;
+  totalBookings: number;
+  totalUnitsSold: number;
+}
 
 export default function OrganizerDashboard() {
   const [events, setEvents] = useState<Event[]>([]);
   const router = useRouter();
+  const [kpis, setKpis] = useState<kpis>({
+    eventCount: 0,
+    revenue: 0,
+    totalBookings: 0,
+    totalUnitsSold: 0,
+  });
 
   useEffect(() => {
     fetchEvents();
@@ -96,9 +111,31 @@ export default function OrganizerDashboard() {
     await httpRequest(`/events/${id}/cancel`, "POST");
     setEvents(
       events.map((event) =>
-        event.id === id ? { ...event, status: "canceled" } : event
+        event.id === id ? { ...event, status: "cancelled" } : event
       )
     );
+  };
+
+  const fetchKpis = async () => {
+    const response = await httpRequest("/dashboard/organizer");
+    // console.log("🚀 ~ fetchKpis ~ response:", response)
+    setKpis(response);
+  };
+
+  useEffect(() => {
+    fetchKpis();
+  }, []);
+
+  const calculateAttendees = (
+    eventUnlimited: boolean,
+    capacity?: number,
+    remaining?: number
+  ) => {
+    if (eventUnlimited) {
+      return "Unlimited";
+    } else if (capacity && remaining) {
+      return `${capacity - remaining}`;
+    }
   };
 
   return (
@@ -123,18 +160,7 @@ export default function OrganizerDashboard() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">username</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      user@example.com
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/")}>Home</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -150,12 +176,7 @@ export default function OrganizerDashboard() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {events.reduce(
-                  (sum, event) => sum + event.capacity - event.remaining,
-                  0
-                )}
-              </div>
+              <div className="text-2xl font-bold">{kpis.totalUnitsSold}</div>
             </CardContent>
           </Card>
           <Card>
@@ -178,6 +199,17 @@ export default function OrganizerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{draftEvents}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <Edit className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {convertCentsToDollars(kpis.revenue)}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -211,7 +243,13 @@ export default function OrganizerDashboard() {
                       <TableCell>
                         {convertDate(event.timestamp, "short")}
                       </TableCell>
-                      <TableCell>{event.capacity - event.remaining}</TableCell>
+                      <TableCell>
+                        {calculateAttendees(
+                          event.unlimited,
+                          event.capacity,
+                          event.remaining
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -223,7 +261,7 @@ export default function OrganizerDashboard() {
                           {event.status}
                         </Badge>
                       </TableCell>
-                      {event.status !== "canceled" && (
+                      {event.status !== "cancelled" && (
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -359,12 +397,16 @@ export default function OrganizerDashboard() {
                             {convertDate(event.timestamp, "short")}
                           </TableCell>
                           <TableCell>
-                            {event.capacity - event.remaining}
+                            {calculateAttendees(
+                              event.unlimited,
+                              event.capacity,
+                              event.remaining
+                            )}
                           </TableCell>
                           <TableCell>
                             <Badge variant="secondary">{event.status}</Badge>
                           </TableCell>
-                          {event.status !== "canceled" && (
+                          {event.status !== "cancelled" && (
                             <TableCell className="text-right">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

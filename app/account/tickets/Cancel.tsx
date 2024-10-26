@@ -10,10 +10,26 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { httpRequest } from "@/app/utils/http";
+import { toast } from "@/hooks/use-toast";
 
-const CancelDialog: React.FC = () => {
-  const handleConfirm = () => {
-    // Add your cancel logic here
+interface CancelDialogProps { 
+  bookingId: string;
+}
+
+const CancelDialog: React.FC<CancelDialogProps> = ({ bookingId }) => {
+  const handleConfirm = async () => {
+    const bookingIdWOIRI = bookingId.split("/").pop();
+    await httpRequest(
+      `/bookings/${bookingIdWOIRI}/cancel`,
+      "POST",
+      {},
+      { "Content-Type": "application/ld+json" }
+    );
+    toast({
+      title: "Booking cancelled successfully",
+      variant: "default",
+    });
   };
 
   return (

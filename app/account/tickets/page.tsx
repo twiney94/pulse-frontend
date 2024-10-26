@@ -40,7 +40,7 @@ export default function MyTicketsPage() {
           (ticket) => new Date(ticket.event.timestamp) < new Date()
         );
         upcomingTickets.forEach((ticket) => {
-          if (ticket.status === "canceled") {
+          if (ticket.status === "cancelled") {
             const index = upcomingTickets.indexOf(ticket);
             if (index > -1) {
               upcomingTickets.splice(index, 1);
@@ -118,10 +118,10 @@ export default function MyTicketsPage() {
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
                   <span className="text-lg font-semibold">
-                    {convertCentsToDollars(ticket.event.price)}
+                    {convertCentsToDollars(ticket.event.price * ticket.units)}
                   </span>
                   <div className="flex gap-2">
-                    <Cancel />
+                    <Cancel bookingId={ticket["@id"]} />
                     <QRCodeDialog />
                   </div>
                 </CardFooter>
@@ -186,10 +186,14 @@ export default function MyTicketsPage() {
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
                   <span className="text-lg font-semibold">
-                    {convertCentsToDollars(ticket.event.price)}
+                    {convertCentsToDollars(ticket.event.price * ticket.units)}
                   </span>
                   <div className="flex gap-2">
-                    <Badge variant="default" className="capitalize">{ticket.status === 'confirmed' ? 'attended' : ticket.status}</Badge>
+                    <Badge variant="default" className="capitalize">
+                      {ticket.status === "confirmed"
+                        ? "attended"
+                        : ticket.status}
+                    </Badge>
                   </div>
                 </CardFooter>
               </Card>

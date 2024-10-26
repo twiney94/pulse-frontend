@@ -90,9 +90,11 @@ export default function NavBar() {
             <DropdownMenuItem onClick={() => router.push("/account")}>
               My Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-              Dashboard
-            </DropdownMenuItem>
+            {role === "organizer" || role === "admin" ? (
+              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                Dashboard
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
               Logout

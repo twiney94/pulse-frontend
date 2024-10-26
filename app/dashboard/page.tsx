@@ -7,6 +7,7 @@ import Admin from "./Admin";
 import Organizer from "./Organizer";
 import { useSession } from "next-auth/react";
 import { decode } from "jsonwebtoken";
+import { Toaster } from "@/components/ui/toaster";
 
 const DashboardPage = () => {
   const router = useRouter();
@@ -25,13 +26,14 @@ const DashboardPage = () => {
           setRole("admin");
         } else if (roles.includes("ROLE_ORGANIZER")) {
           setRole("organizer");
-        } else router.push("/login");
+        } else router.push("/");
       }
     }
   }, [Session]);
 
   return (
     <>
+      <Toaster />
       {role === "admin" && <Admin />}
       {role === "organizer" && <Organizer />}
     </>

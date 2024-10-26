@@ -31,11 +31,124 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, ChevronsUpDown, Check } from "lucide-react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
 import { httpRequest } from "@/app/utils/http";
 import { convertDollarsToCents } from "@/app/utils/pricing";
 import { tagOptions } from "@/app/components/TagOptions";
 import { Event } from "@/app/types/d";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import {
+  ClassicEditor,
+  AccessibilityHelp,
+  Autoformat,
+  Autosave,
+  BlockQuote,
+  Bold,
+  Essentials,
+  Heading,
+  Indent,
+  IndentBlock,
+  Italic,
+  Link,
+  Paragraph,
+  SelectAll,
+  Table,
+  TableCaption,
+  TableCellProperties,
+  TableColumnResize,
+  TableProperties,
+  TableToolbar,
+  TextTransformation,
+  Underline,
+  Undo,
+} from "ckeditor5";
+import "ckeditor5/ckeditor5.css";
+
+const editorConfig = {
+  toolbar: {
+    items: [
+      "undo",
+      "redo",
+      "|",
+      "heading",
+      "|",
+      "bold",
+      "italic",
+      "underline",
+      "|",
+      "link",
+      "insertTable",
+      "blockQuote",
+      "|",
+      "outdent",
+      "indent",
+    ],
+    shouldNotGroupWhenFull: false,
+  },
+  plugins: [
+    AccessibilityHelp,
+    Autoformat,
+    Autosave,
+    BlockQuote,
+    Bold,
+    Essentials,
+    Heading,
+    Indent,
+    IndentBlock,
+    Italic,
+    Link,
+    Paragraph,
+    SelectAll,
+    Table,
+    TableCaption,
+    TableCellProperties,
+    TableColumnResize,
+    TableProperties,
+    TableToolbar,
+    TextTransformation,
+    Underline,
+    Undo,
+  ],
+  heading: {
+    options: [
+      { model: "paragraph", title: "Paragraph", class: "ck-heading_paragraph" },
+      {
+        model: "heading1",
+        view: "h1",
+        title: "Heading 1",
+        class: "ck-heading_heading1",
+      },
+      {
+        model: "heading2",
+        view: "h2",
+        title: "Heading 2",
+        class: "ck-heading_heading2",
+      },
+    ],
+  },
+  link: {
+    addTargetToExternalLinks: true,
+    defaultProtocol: "https://",
+    decorators: {
+      toggleDownloadable: {
+        mode: "manual",
+        label: "Downloadable",
+        attributes: {
+          download: "file",
+        },
+      },
+    },
+  },
+  placeholder: "Type or paste your content here!",
+  table: {
+    contentToolbar: [
+      "tableColumn",
+      "tableRow",
+      "mergeTableCells",
+      "tableProperties",
+      "tableCellProperties",
+    ],
+  },
+};
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -71,15 +184,6 @@ export default function EditEventPage() {
       if (status === "authenticated") {
         try {
           const response = await httpRequest<Event>(`/events/${id}`, "GET");
-          if (response.organizer.id !== session?.user.id) {
-            toast({
-              title: "Unauthorized",
-              description: "You are not authorized to edit this event.",
-              variant: "destructive",
-            });
-            router.push(`/event/${id}`);
-            return;
-          }
           setInitialValues({
             title: response.title,
             timestamp: new Date(response.timestamp),
@@ -111,15 +215,15 @@ export default function EditEventPage() {
       const updatedValues = { ...values, tags: selectedTags };
       if (thumbnail) updatedValues.thumbnail = await uploadImage(thumbnail);
       updatedValues.price = convertDollarsToCents(values.price);
-      await httpRequest(`/events/${eventId}`, "PATCH", updatedValues, {
-        "Content-Type": "application/ld+json",
+      await httpRequest(`/events/${id}`, "PATCH", updatedValues, {
+        "Content-Type": "application/merge-patch+json",
       });
       toast({
         title: "Event updated",
         description: "Your event has been successfully updated",
         variant: "default",
       });
-      router.push(`/events/${eventId}`);
+      router.push(`/event/${id}`);
     } catch (error) {
       toast({
         title: "Error",
@@ -221,24 +325,12 @@ export default function EditEventPage() {
                 </Label>
                 <CKEditor
                   editor={ClassicEditor}
-                  config={{
-                    placeholder: "Type or paste your content here!",
-                    toolbar: [
-                      "undo",
-                      "redo",
-                      "|",
-                      "heading",
-                      "|",
-                      "bold",
-                      "italic",
-                      "|",
-                      "link",
-                    ],
-                  }}
+                  config={editorConfig}
                   data={values.overview}
-                  onChange={(event, editor) =>
-                    setFieldValue("overview", editor.getData())
-                  }
+                  onChange={(event, editor) => {
+                    const data = editor.getData();
+                    setFieldValue("overview", data);
+                  }}
                 />
                 <ErrorMessage
                   name="overview"
@@ -285,7 +377,9 @@ export default function EditEventPage() {
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  isSelected ? "opacity-100" : "opacity-0"
+                                  values.tags.includes(tag.value)
+                                    ? "text-green-500"
+                                    : "text-gray-400"
                                 )}
                               />
                               {tag.label}
@@ -298,23 +392,6 @@ export default function EditEventPage() {
                 </Popover>
                 <ErrorMessage
                   name="tags"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-
-              {/* Capacity */}
-              <div className="flex items-center">
-                <Label htmlFor="capacity">Capacity*</Label>
-                <Field
-                  name="capacity"
-                  as={Input}
-                  type="number"
-                  disabled={values.unlimited}
-                  className="ml-4"
-                />
-                <ErrorMessage
-                  name="capacity"
                   component="div"
                   className="text-red-500 text-sm"
                 />
