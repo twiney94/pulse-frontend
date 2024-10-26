@@ -66,7 +66,9 @@ export default function NavBar() {
             <DropdownMenuItem onClick={() => router.push("/account")}>
               My Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+              Dashboard
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
               Logout

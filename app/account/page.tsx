@@ -22,29 +22,21 @@ import { httpRequest } from "../utils/http";
 import Layout from "../components/Layout";
 
 // Define validation schema
-const formSchema = z
-  .object({
-    firstName: z
-      .string()
-      .min(2, "First name must be at least 2 characters.")
-      .optional(),
-    lastName: z
-      .string()
-      .min(2, "Last name must be at least 2 characters.")
-      .optional(),
-    newPassword: z
-      .string()
-      .min(8, "New password must be at least 8 characters.")
-      .optional(),
-    confirmNewPassword: z.string().optional(),
-  })
-  .refine(
-    (data) => !data.newPassword || data.newPassword === data.confirmNewPassword,
-    {
-      message: "New passwords do not match",
-      path: ["confirmNewPassword"],
-    }
-  );
+const formSchema = z.object({
+  firstName: z
+    .string()
+    .min(2, "First name must be at least 2 characters.")
+    .optional(),
+  lastName: z
+    .string()
+    .min(2, "Last name must be at least 2 characters.")
+    .optional(),
+  newPassword: z
+    .string()
+    .min(8, "New password must be at least 8 characters.")
+    .optional(),
+  confirmNewPassword: z.string().optional(),
+});
 
 export function UpdateProfilePage() {
   const { data: session } = useSession();
@@ -108,12 +100,26 @@ export function UpdateProfilePage() {
     }
 
     try {
-      await httpRequest(`/users/${userId}`, "PATCH", updatedData, {
-        "Content-Type": "application/merge-patch+json",
-      });
+      const { newPassword, confirmNewPassword, password, ...profileData } =
+        updatedData;
+      console.log("🚀 ~ onSubmit ~ updatedData:", updatedData);
+      if (profileData.firstName || profileData.lastName) {
+        await httpRequest(`/users/${userId}`, "PATCH", profileData, {
+          "Content-Type": "application/merge-patch+json",
+        });
+      }
+
+      if (values.newPassword) {
+        await httpRequest(`/users/change-password`, "POST", {
+          oldPassword: values.newPassword,
+          password: values.confirmNewPassword,
+        });
+      }
+
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated.",
+        variant: "success",
       });
     } catch (error) {
       toast({
@@ -187,7 +193,9 @@ export function UpdateProfilePage() {
           <Button
             type="submit"
             className="w-full mt-4"
-            disabled={!form.formState.isDirty || !form.formState.isValid || loading}
+            disabled={
+              !form.formState.isDirty || !form.formState.isValid || loading
+            }
           >
             Save Changes
           </Button>

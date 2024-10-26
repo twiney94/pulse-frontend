@@ -25,6 +25,7 @@ export const authOptions: NextAuthOptions = {
           const data = await res.json();
 
           const jwt = decode(data.token);
+          console.log("🚀 ~ authorize: ~ jwt:", jwt)
 
           if (!res.ok) {
             throw new Error(data.message || "Authentication failed");
@@ -32,7 +33,7 @@ export const authOptions: NextAuthOptions = {
 
           if (data.token) {
             if (jwt && typeof jwt === 'object' && 'id' in jwt) {
-              return { _id: jwt.id, token: data.token };
+              return { _id: jwt.id, token: data.token, role: jwt.role };
             }
             throw new Error("Invalid token");
           }
