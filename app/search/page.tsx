@@ -74,7 +74,6 @@ export default function SearchPage() {
           window.history.replaceState(null, "", `?${newParams.toString()}`);
         }}
       >
-        {/* activate those used in query params and if user clicks on one it should add it to query params, remove it if untoggle */}
         {tagOptions.map((tag) => (
           <ToggleGroupItem key={tag.value} value={tag.value}>
             {tag.icon}
