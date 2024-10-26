@@ -31,8 +31,6 @@ export default function SearchPage() {
   const [searchResults, setSearchResults] = useState<Event[]>([]);
   const params = useSearchParams();
 
-  // watch the params and if they change, refetch the events
-
   useEffect(() => {
     const fetchEvents = async () => {
       try {
